@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="section">
+  <h1 style="font-size:22px; text-align:center; line-height:1.3; margin-bottom:6px;">
+    About<br>Ajmal Adam
+  </h1>
+
+  <p style="text-align:center; font-size:13px; color:#9aa0a6; margin-top:-8px;">
+    [Developer]
+  </p>
+
+  <div style="text-align:center; margin: 12px 0 18px 0;">
+    <img src="{{ url_for('static', filename='images/profile.png') }}"
+         alt="Ajmal Adam"
+         style="width:140px; height:140px; border-radius:50%; object-fit:cover; border:3px solid #4b9fff;">
+  </div>
+
+  <p style="font-size:14px; line-height:1.5;">
+    Ajmal Adam is a Software Engineer, Ethical Hacker, Blockchain Researcher and Film Maker from Kerala - india. He specialises in Ai Smart Contract Security, vulnerability analysis, and building tools that make on-chain systems safer and more auditable.
+  </p>
+
+  <p style="font-size:14px; line-height:1.5;">
+    His approach combines automated tooling, targeted fuzzing, and manual review to produce practical, verifiable findings and remediation guidance. He contributes to open-source tooling and shares reproducible research to help developers and auditors improve security standards.
+  </p>
+
+  <p style="font-size:14px; line-height:1.5;">
+    Operating between Karuvarakundu (Malappuram) and Kochi, Ajmal focuses on applied research at the intersection of blockchain, Ai-driven auditing, and space-grade communication systems.
+  </p>
+
+  <p style="font-size:14px; line-height:1.5;">
+    Core technologies and tools: <strong> Solidity • Python • C++ • Java Script • Remix IDE • Foundry • Slither • Manticore • Mythril • Echidna</strong>. and more
+  </p>
+
+  <div class="grid" style="margin-top:20px">
+    <article class="card">
+      <h3 style="font-size:16px">Research Areas</h3>
+      <p style="font-size:13px">Smart contract security • Static analysis • Fuzzing • Symbolic execution • Audit automation • Space-tech integration</p>
+    </article>
+
+    <article class="card">
+      <h3 style="font-size:16px">Tools & Ecosystems</h3>
+      <p style="font-size:13px">Foundry • Slither • Mythril • Echidna • Manticore • Remix IDE • Pharos Network</p>
+    </article>
+
+    <article class="card">
+      <h3 style="font-size:16px">Vision</h3>
+      <p style="font-size:13px">To build an open, decentralised research ecosystem that connects security engineering, Ai and space innovation — making advanced research practical and reusable.</p>
+    </article>
+  </div>
+</section>
+
+{% endblock %}

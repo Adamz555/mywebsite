@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Labs pill shown at top of content area -->
+<div class="container nav-pill-row" style="max-width:980px; margin:8px auto 0; padding:0 12px;">
+  <div class="nav-links-row">
+    <a class="btn btn-ghost" href="{{ url_for('labs') }}">🧪 Labs</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Explore Blockchain & Smart Contracts</h1>
+    <p class="hero-subtitle">We build knowledge around smart contracts, security audits, and research that bridges blockchain with space innovation.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="{{ url_for('blockchain_basic') }}">Blockchain Basic</a>
+      <a class="btn btn-ghost" href="{{ url_for('labs') }}">Review</a>
+    </div>
+  </div>
+</section>
+
+<div class="home-cards">
+  <div class="card">
+    <h2>Smart Contract Audits</h2>
+    <p>Hands-on findings, PoCs, and best practices to secure on-chain systems.</p>
+  </div>
+
+  <div class="card">
+    <h2>Blockchain Knowledge</h2>
+    <p>Clear explanations: consensus, tokens, DeFi, security models, and more.</p>
+  </div>
+
+  <div class="card">
+    <h2>Space Research Ideas</h2>
+    <p>Thought experiments on using distributed tech for space missions.</p>
+  </div>
+</div>
+
+<div class="latest">
+  <h2>Latest</h2>
+  <p class="muted">Updates and short notes will appear here.</p>
+</div>
+{% endblock %}
