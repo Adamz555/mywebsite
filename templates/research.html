@@ -2,8 +2,159 @@
 {% block content %}
 <section class="section">
   <div class="card">
-    <h2 style="font-size:18px; margin:0 0 10px;">Coming Soon</h2>
-    <p style="font-size:13px;">Deep research projects and write-ups will appear here.</p>
+    <h1 style="text-align:center; margin-bottom:8px;">Ajmal Adam Research Files <small style="display:block; font-size:13px;">(Basics only)</small></h1>
+
+    <p style="font-size:14px; line-height:1.6; margin-bottom:16px;">
+      This page collects short, practical Proof-of-Concepts (PoCs) and compact explanations for selected research topics.
+      The content below is intentionally concise — full technical disclosure and production-ready systems are not published here for confidentiality reasons.
+    </p>
+
+    <!-- PoC 1: Decentralized Voting -->
+    <div class="card" style="margin-bottom:14px;">
+      <h2 style="font-size:18px; margin:8px 0;">Decentralized Voting <small style="font-size:12px;">(Proof of Concept)</small></h2>
+      <p style="font-size:13px; line-height:1.5;">
+        Minimal secure voting flow using a ballot smart contract. Focus: privacy-aware vote submission, simple tallying, and replay protection.
+      </p>
+
+      <h3 style="font-size:14px; margin-top:8px;">High-level steps</h3>
+      <ul style="font-size:13px; line-height:1.5;">
+        <li>Register eligible voters (on-chain or via Merkle root).</li>
+        <li>Accept encrypted or blind-signed votes (to avoid linking voter → choice).</li>
+        <li>Close poll, decrypt/verify votes off-chain or on-chain tally contract.</li>
+      </ul>
+
+      <h3 style="font-size:14px; margin-top:8px;">Minimal Solidity PoC (illustrative)</h3>
+      <pre><code class="language-solidity">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/// Minimal ballot: register -> vote -> tally (concept only)
+contract SimpleBallot {
+    mapping(address => bool) public registered;
+    mapping(bytes32 => uint) public tally; // store vote id -> count
+    mapping(address => bool) public voted;
+
+    address public admin;
+    bool public closed;
+
+    constructor() { admin = msg.sender; }
+
+    function register(address a) external {
+        require(msg.sender == admin, "only admin");
+        registered[a] = true;
+    }
+
+    // voteOption is a keccak256 hashed option (e.g. keccak256("YES"))
+    function submitVote(bytes32 voteOption) external {
+        require(!closed, "poll closed");
+        require(registered[msg.sender], "not registered");
+        require(!voted[msg.sender], "already voted");
+        voted[msg.sender] = true;
+        tally[voteOption] += 1;
+    }
+
+    function closePoll() external {
+        require(msg.sender == admin, "only admin");
+        closed = true;
+    }
+
+    function getCount(bytes32 voteOption) external view returns (uint) {
+        return tally[voteOption];
+    }
+}
+      </code></pre>
+    </div>
+
+    <!-- PoC 2: Blockchain for Space Mission -->
+    <div class="card" style="margin-bottom:14px;">
+      <h2 style="font-size:18px; margin:8px 0;">Blockchain Technology for Space Missions <small style="font-size:12px;">(Proof of Concept)</small></h2>
+      <p style="font-size:13px; line-height:1.5;">
+        Lightweight on-chain logging + off-chain durable storage pattern for telemetry authenticity and chain-of-custody of mission data.
+      </p>
+
+      <h3 style="font-size:14px; margin-top:8px;">Concept</h3>
+      <ul style="font-size:13px; line-height:1.5;">
+        <li>Spacecraft generates telemetry snapshots and signs each snapshot.</li>
+        <li>Hash of snapshot + signed metadata anchored to blockchain (cheap on-chain transaction).</li>
+        <li>Full snapshot stored in resilient off-chain storage (IPFS/S3) — reference (CID/URL) stored with anchor.</li>
+      </ul>
+
+      <h3 style="font-size:14px; margin-top:8px;">Minimal anchor PoC (pseudo-code)</h3>
+      <pre><code class="language-javascript">
+// Example: client-side script to anchor telemetry snapshot
+// 1) create snapshot JSON
+// 2) upload to IPFS -> get CID
+// 3) call smart contract anchor(cid, timestamp, signature)
+
+async function anchorSnapshot(snapshotJson, signer, contract) {
+  // 1. upload snapshot -> ipfsCid
+  const ipfsCid = await ipfs.add(JSON.stringify(snapshotJson));
+  // 2. create anchor payload and sign (spacecraft private key)
+  const payload = keccak256(ipfsCid + snapshotJson.timestamp);
+  const signature = await signer.signMessage(payload);
+  // 3. call on-chain anchor
+  await contract.anchor(ipfsCid, snapshotJson.timestamp, signature);
+}
+      </code></pre>
+    </div>
+
+    <!-- PoC 3: Decentralized Finance (DeFi) Basics -->
+    <div class="card" style="margin-bottom:14px;">
+      <h2 style="font-size:18px; margin:8px 0;">Decentralized Finance - Lending Pool Example <small style="font-size:12px;">(Proof of Concept)</small></h2>
+      <p style="font-size:13px; line-height:1.5;">
+        Very small lending pool demonstration: deposit -> accrue interest (simple) -> withdraw. Not for production — shown to explain primitives.
+      </p>
+
+      <h3 style="font-size:14px; margin-top:8px;">Core idea</h3>
+      <ul style="font-size:13px; line-height:1.5;">
+        <li>Users deposit ERC20 tokens, contract tracks shares.</li>
+        <li>Interest simulated as increase of total assets; shares represent claim.</li>
+      </ul>
+
+      <h3 style="font-size:14px; margin-top:8px;">Minimal Solidity PoC (illustrative)</h3>
+      <pre><code class="language-solidity">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+interface IERC20 { function transferFrom(address, address, uint) external returns(bool); function transfer(address,uint) external returns(bool); function balanceOf(address) external view returns(uint); }
+contract TinyLending {
+    IERC20 public token;
+    mapping(address=>uint) public shares;
+    uint public totalShares;
+    address public admin;
+    constructor(IERC20 _token) { token = _token; admin = msg.sender; }
+
+    function deposit(uint amount) external {
+        uint totalAssets = token.balanceOf(address(this));
+        token.transferFrom(msg.sender, address(this), amount);
+        uint mintShares = totalShares == 0 ? amount : (amount * totalShares) / totalAssets;
+        shares[msg.sender] += mintShares;
+        totalShares += mintShares;
+    }
+
+    // simulate interest by admin increasing assets (for demo)
+    function addYield(uint amount) external {
+        require(msg.sender == admin, "only admin");
+        token.transferFrom(msg.sender, address(this), amount);
+    }
+
+    function withdraw(uint shareAmt) external {
+        require(shares[msg.sender] >= shareAmt, "not enough shares");
+        uint totalAssets = token.balanceOf(address(this));
+        uint withdrawAmount = (shareAmt * totalAssets) / totalShares;
+        shares[msg.sender] -= shareAmt;
+        totalShares -= shareAmt;
+        token.transfer(msg.sender, withdrawAmount);
+    }
+}
+      </code></pre>
+    </div>
+
+    <!-- Footer note -->
+    <p style="font-size:12px; color:var(--muted-text, #a0a8b8); margin-top:18px;">
+      <strong>Note:</strong> The examples above are intentionally simplified educational PoCs for demonstration of basic ideas only.
+      They are not production-ready and omit many required security controls (access control, on-chain privacy, key management, auditability, testing and formal verification).
+      Due to the confidential nature of ongoing research, full method disclosures and proprietary techniques are not published here.
+    </p>
   </div>
 </section>
 {% endblock %}
