@@ -19,20 +19,104 @@
   </div>
 </section>
 
-<div class="home-cards">
-  <div class="card">
-    <h2>Smart Contract Audits</h2>
-    <p>Hands-on findings, PoCs, and best practices to secure on-chain systems.</p>
+<div class="home-cards" id="cards-root">
+  <!-- Four new buttons as requested -->
+  <div class="card" style="cursor:pointer" onclick="showDetail('ai')">
+    <h2>Ai Agents</h2>
+    <p>Autonomous on-chain/off-chain agents that monitor, act and optimise smart contract systems.</p>
   </div>
 
-  <div class="card">
-    <h2>Blockchain Knowledge</h2>
-    <p>Clear explanations: consensus, tokens, DeFi, security models, and more.</p>
+  <div class="card" style="cursor:pointer" onclick="showDetail('multisign')">
+    <h2>Multisign</h2>
+    <p>Multi-signature wallets and workflows for safer treasury and admin operations.</p>
   </div>
 
-  <div class="card">
-    <h2>Space Research Ideas</h2>
-    <p>Thought experiments on using distributed tech for space missions.</p>
+  <div class="card" style="cursor:pointer" onclick="showDetail('dao')">
+    <h2>DAO</h2>
+    <p>Decentralized Autonomous Organizations — governance, treasury, and community coordination.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('future')">
+    <h2>Future of Blockchain Technology</h2>
+    <p>Trends: Ai integration, ZK privacy, cross-chain, tokenization, and space-grade deployments.</p>
+  </div>
+</div>
+
+<!-- Details panels (hidden by default) -->
+<div id="detail-root" style="margin-top:18px; display:none;">
+  <div class="card" id="detail-ai" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Ai Agents — Autonomous Intelligent Agents</h2>
+    <p style="color:var(--muted);">Ai Agents are software entities that observe data, make decisions, and act — optionally interacting with blockchains or smart contracts. They can automate monitoring, on-chain operations, trading strategies, security scanning and governance helpers.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Key uses</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Real-time on-chain monitoring and anomaly detection.</li>
+      <li>Autonomous rebalancing, arbitrage and DeFi optimisation.</li>
+      <li>Automated vulnerability triage and alerting for auditors.</li>
+      <li>Agent-assisted DAO proposal evaluation and recommendation.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Design & risks</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Keep transparent decision logs on-chain or via signed attestations.</li>
+      <li>Protect agent keys; use threshold keys or multisig for critical actions.</li>
+      <li>Rate-limit and test agent policies to avoid costly on-chain mistakes.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-multisign" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Multisign — Multi-signature Security</h2>
+    <p style="color:var(--muted);">Multisig requires multiple independent signatures to authorize transactions. It is widely used to secure treasuries, protect admin privileges, and ensure collective control over funds.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Common patterns</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>m-of-n wallets (example: 2/3, 3/5) for team custody.</li>
+      <li>Multisig with timelocks and on-chain guardians for safer upgrades.</li>
+      <li>DAOs integrating multisig for delegated execution of proposals.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Best practices</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Use tested multisig contracts (OpenZeppelin/Gnosis Safe).</li>
+      <li>Distribute keys across people and devices; avoid single points of failure.</li>
+      <li>Combine with monitoring, alerts and emergency recovery plans.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-dao" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>DAO — Decentralized Autonomous Organization</h2>
+    <p style="color:var(--muted);">A DAO is an on-chain governed collective where rules and treasury actions are enforced by smart contracts. Members propose and vote; successful proposals execute automatically when conditions are met.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Core components</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Token-based voting or reputation systems for decision power.</li>
+      <li>Proposal lifecycle (create → discuss → vote → execute).</li>
+      <li>Treasury contracts, multisig safes, and timelocks for finance control.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Operational notes</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Design clear proposal formats and quorum rules.</li>
+      <li>Use on-chain and off-chain governance tooling (forum, snapshot, on-chain execution).</li>
+      <li>Audit governance contracts and treasury flows thoroughly.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-future" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Future of Blockchain Technology</h2>
+    <p style="color:var(--muted);">The near future blends privacy (ZK), Ai, cross-chain interoperability, tokenization of real-world assets, and niche domains like space-grade decentralized systems — producing richer, privacy-preserving and highly interconnected infrastructures.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Major trends</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Ai + blockchain: autonomous agents, predictive contracts, on-chain ML pointers.</li>
+      <li>Zero-knowledge proofs for private computation and confidential state.</li>
+      <li>Seamless cross-chain execution and universal liquidity layers.</li>
+      <li>Tokenization and regulated on-chain RWAs (real-world assets).</li>
+      <li>Space-oriented deployments: low-bandwidth anchoring, satellite relays, provenance for telemetry.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">How to prepare</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Learn ZK basics, cross-chain primitives and secure oracle design.</li>
+      <li>Adopt modular, audited toolchains and privacy-first patterns.</li>
+      <li>Design for resilience and intermittent connectivity in novel domains (eg. space).</li>
+    </ul>
   </div>
 </div>
 
@@ -40,4 +124,26 @@
   <h2>Latest</h2>
   <p class="muted">Updates and short notes will appear here.</p>
 </div>
+
+<!-- small JS to toggle -->
+<script>
+  function showDetail(id){
+    // hide cards, show detail-root and the requested panel
+    document.getElementById('cards-root').style.display = 'none';
+    var root = document.getElementById('detail-root');
+    root.style.display = 'block';
+    ['ai','multisign','dao','future'].forEach(function(k){
+      var el = document.getElementById('detail-' + k);
+      if(!el) return;
+      el.style.display = (k === id) ? 'block' : 'none';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function hideDetail(){
+    document.getElementById('detail-root').style.display = 'none';
+    document.getElementById('cards-root').style.display = 'grid';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 {% endblock %}
