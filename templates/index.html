@@ -14,7 +14,7 @@
     <p class="hero-subtitle">We build knowledge around smart contracts, security audits, and research that bridges blockchain with space innovation.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="{{ url_for('blockchain_basic') }}">Blockchain Basic</a>
-      <a class="btn btn-ghost" href="{{ url_for('labs') }}">Review</a>
+      <a class="btn btn-ghost" href="javascript:void(0)" onclick="openReview()">Review</a>
     </div>
   </div>
 </section>
@@ -125,7 +125,37 @@
   <p class="muted">Updates and short notes will appear here.</p>
 </div>
 
-<!-- small JS to toggle -->
+<!-- REVIEW MODAL (no reset-name option) -->
+<div id="review-modal" style="display:none; position:fixed; inset:0; z-index:9999; justify-content:center; align-items:center; background:rgba(0,0,0,0.6);">
+  <div style="width:92%; max-width:520px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); color:var(--text);">
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:16px;">Write Your Review</h3>
+      <button onclick="closeReview()" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
+    </div>
+
+    <p id="rv-instructions" style="margin:8px 0 12px; color:darkgreen; font-size:13px;">Type your name once (saved to this device), then write your review. Captcha is required to create review.</p>
+
+    <input id="review-name" placeholder="Type your name" style="width:100%; padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);">
+    <div id="review-name-note" style="font-size:13px; color:var(--muted); margin-top:8px;">You can set name only once on this device/browser.</div>
+
+    <div id="rv-captcha-row" style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+      <div id="rv-captcha-question" style="color:darkgreen; font-size:13px;">&nbsp;</div>
+      <input id="rv-captcha-answer" placeholder="Answer" style="padding:8px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04); width:120px;">
+      <button id="rv-new-captcha" onclick="fetchCaptcha()" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text);">New</button>
+    </div>
+
+    <textarea id="review-text" rows="4" placeholder="Write your review..." style="width:100%; padding:10px; border-radius:8px; margin-top:12px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);"></textarea>
+
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button id="rv-publish" onclick="submitReview()" style="flex:1; padding:10px; border-radius:8px; background:linear-gradient(135deg,#6a5cff,#2ad1ff); color:#041028; font-weight:700; border:none;">Add your review</button>
+    </div>
+
+    <div id="review-list" style="margin-top:12px; max-height:300px; overflow:auto;"></div>
+  </div>
+</div>
+
+<!-- small JS to toggle + review logic -->
 <script>
   function showDetail(id){
     // hide cards, show detail-root and the requested panel
@@ -144,6 +174,232 @@
     document.getElementById('cards-root').style.display = 'grid';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  /* --- Review widget (no reset-name) --- */
+  const API_BASE = '/api/reviews';
+  const NAME_KEY = 'aj_name_v1';
+  const REV_KEY = 'aj_reviews_v1_fallback';
+  const DELETE_MAP_KEY = 'aj_rev_delete_map_v1';
+  let serverAvailable = null;
+
+  function openReview(){
+    loadNameState();
+    detectServerThenLoad();
+    document.getElementById('review-modal').style.display='flex';
+  }
+  function closeReview(){ document.getElementById('review-modal').style.display='none'; }
+
+  function loadNameState(){
+    const n = localStorage.getItem(NAME_KEY);
+    const input = document.getElementById('review-name');
+    const note = document.getElementById('review-name-note');
+    if(n){ input.value=n; input.disabled=true; note.innerHTML='Name saved: <span style="color:red;">'+n+'</span>'; }
+    else{ input.value=''; input.disabled=false; note.innerText='You can set name only once on this device/browser.'; }
+  }
+
+  async function detectServerThenLoad(){
+    try{
+      const res = await fetch(API_BASE + '/health', {cache:'no-store'});
+      if(res.ok){ serverAvailable = true; await fetchCaptcha(); await loadServerReviews(); return; }
+    }catch(e){}
+    try{
+      const res = await fetch(API_BASE + '?limit=1', {cache:'no-store'});
+      if(res.ok){ serverAvailable = true; await fetchCaptcha(); await loadServerReviews(); return; }
+    }catch(e){}
+    serverAvailable = false;
+    fetchCaptchaFallback();
+    loadFallbackReviews();
+  }
+
+  async function fetchCaptcha(){
+    if(serverAvailable===false) return fetchCaptchaFallback();
+    try{
+      const r = await fetch(API_BASE + '/captcha', {cache:'no-store'});
+      if(!r.ok) throw new Error('no captcha');
+      const j = await r.json();
+      document.getElementById('rv-captcha-question').innerText = j.question || '';
+      document.getElementById('rv-captcha-question').dataset.cid = j.cid || '';
+    }catch(e){
+      serverAvailable = false;
+      fetchCaptchaFallback();
+    }
+  }
+
+  function fetchCaptchaFallback(){
+    const a = Math.floor(Math.random()*8)+2;
+    const b = Math.floor(Math.random()*8)+1;
+    document.getElementById('rv-captcha-question').innerText = `${a} + ${b} = ?`;
+    document.getElementById('rv-captcha-question').dataset.cid = 'fallback';
+    document.getElementById('rv-captcha-question').dataset.ans = String(a+b);
+  }
+
+  async function submitReview(){
+    const nameInput = document.getElementById('review-name');
+    let name = localStorage.getItem(NAME_KEY);
+    if(!name){
+      if(!nameInput.value.trim()){ alert('Type your name'); return; }
+      const cid = document.getElementById('rv-captcha-question').dataset.cid || '';
+      const ans = document.getElementById('rv-captcha-answer').value.trim();
+      if(!ans){ alert('Please answer captcha'); return; }
+      if(serverAvailable){
+        try{
+          const res = await fetch(API_BASE, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({name: nameInput.value.trim(), text: "", captcha_id: cid, captcha_answer: ans})
+          });
+          const j = await res.json();
+          if(!res.ok){ alert(j.error || 'Server refused'); return; }
+          localStorage.setItem(NAME_KEY, nameInput.value.trim());
+          if(j.delete_token && j.id) {
+            const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
+            map[String(j.id)] = j.delete_token;
+            localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
+          }
+          name = nameInput.value.trim();
+          loadNameState();
+        }catch(e){
+          alert('Network error creating name; try again'); return;
+        }
+      } else {
+        const expected = document.getElementById('rv-captcha-question').dataset.ans;
+        if(String(ans) !== String(expected)){ alert('Captcha wrong'); return; }
+        localStorage.setItem(NAME_KEY, nameInput.value.trim());
+        name = nameInput.value.trim();
+        loadNameState();
+      }
+    }
+
+    const text = document.getElementById('review-text').value.trim();
+    if(!text){ alert('Write review'); return; }
+
+    document.getElementById('rv-publish').disabled = true;
+    try {
+      if(serverAvailable){
+        const cid = document.getElementById('rv-captcha-question').dataset.cid || '';
+        const ans = document.getElementById('rv-captcha-answer').value.trim();
+        const payload = { name, text, captcha_id: cid, captcha_answer: ans };
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const j = await res.json();
+        if(!res.ok){ alert(j.error || 'Publish failed'); serverAvailable = false; throw new Error('server failed'); }
+        if(j.delete_token && j.id){
+          const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
+          map[String(j.id)] = j.delete_token;
+          localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
+        }
+        document.getElementById('review-text').value = '';
+        await loadServerReviews();
+        fetchCaptcha();
+      } else {
+        const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]');
+        arr.unshift({ id: Date.now(), name, text, ts: Date.now() });
+        localStorage.setItem(REV_KEY, JSON.stringify(arr.slice(0,500)));
+        document.getElementById('review-text').value = '';
+        loadFallbackReviews();
+      }
+    } catch(e){ console.error(e); }
+    finally{ document.getElementById('rv-publish').disabled = false; }
+  }
+
+  async function loadServerReviews(){
+    try{
+      const res = await fetch(API_BASE + '?limit=500', {cache:'no-store'});
+      if(!res.ok) throw new Error('no list');
+      const j = await res.json();
+      renderReviews(j.reviews || []);
+    }catch(e){
+      serverAvailable = false;
+      loadFallbackReviews();
+    }
+  }
+
+  function loadFallbackReviews(){
+    const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]');
+    renderReviews(arr);
+  }
+
+  function renderReviews(reviews){
+    const root = document.getElementById('review-list');
+    root.innerHTML = '';
+    if(!reviews || !reviews.length){
+      root.innerHTML = '<div style="color:var(--muted);font-size:13px;">No reviews yet.</div>';
+      return;
+    }
+    const deleteMap = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
+    reviews.forEach(r=>{
+      const id = r.id || r.ts || (r._id || Date.now());
+      const ts = r.ts || r.ts || r.created_at || Date.now();
+      const name = escapeHtml(r.name || 'Anon');
+      const text = escapeHtml(r.text || '');
+      const timeStr = new Date(ts).toLocaleString();
+      const canDelete = (deleteMap[String(id)] || (!serverAvailable && (r.name && localStorage.getItem(NAME_KEY) === r.name)));
+      const deleteButton = canDelete ? `<button data-id="${id}" class="rv-delete" style="float:right;margin-left:8px;background:transparent;border:none;color:brown;font-size:18px;cursor:pointer;">🗑️</button>` : '';
+      root.insertAdjacentHTML('beforeend',
+        `<div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);margin-bottom:8px;position:relative;">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+            <div style="font-weight:700;color:red;">${name}</div>
+            <div style="font-size:12px;color:var(--muted);">${timeStr}</div>
+          </div>
+          <div style="margin-top:6px;color:var(--muted);white-space:pre-wrap;">${text}</div>
+          <div style="position:absolute; right:12px; bottom:12px;">${deleteButton}</div>
+        </div>`
+      );
+    });
+
+    Array.from(document.querySelectorAll('.rv-delete')).forEach(btn=>{
+      btn.addEventListener('click', onDeleteClick);
+    });
+  }
+
+  async function onDeleteClick(ev){
+    const id = ev.currentTarget.getAttribute('data-id');
+    if(!confirm('Delete this review?')) return;
+
+    const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
+    const token = map[String(id)];
+    if(serverAvailable && token){
+      try{
+        const res = await fetch(API_BASE + '/' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ delete_token: token })
+        });
+        const j = await res.json();
+        if(!res.ok){ alert(j.error || 'Delete failed'); return; }
+        delete map[String(id)];
+        localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
+        await loadServerReviews();
+        return;
+      }catch(e){
+        alert('Network error deleting'); return;
+      }
+    }
+
+    if(!serverAvailable){
+      const arr = JSON.parse(localStorage.getItem(REV_KEY)||'[]');
+      const name = localStorage.getItem(NAME_KEY);
+      const idx = arr.findIndex(x=>String(x.id) === String(id));
+      if(idx === -1){ alert('Not found'); return; }
+      if(name && arr[idx].name !== name){ alert('You can only delete your own review on this device'); return; }
+      arr.splice(idx,1);
+      localStorage.setItem(REV_KEY, JSON.stringify(arr));
+      loadFallbackReviews();
+      return;
+    }
+
+    alert('Cannot delete: delete token missing.');
+  }
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+  document.getElementById('rv-new-captcha').addEventListener('click', function(e){ fetchCaptcha(); });
+
+  (function attachToReviewLink(){ /* openReview used by anchor */ })();
+
 </script>
 
 {% endblock %}

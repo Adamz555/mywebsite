@@ -1,0 +1,245 @@
+<!-- Review widget (separate file) -->
+<div id="rv-root" style="display:none;">
+  <div id="rv-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <div style="width:92%; max-width:520px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); color:var(--text);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:16px;">Write Your Review</h3>
+        <button id="rv-close" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+
+      <p id="rv-instr" style="margin:8px 0 10px; font-size:13px; color:#006400;">
+        Type your name once (saved to this device), then write your review. Captcha required to create name.
+      </p>
+
+      <input id="rv-name" placeholder="Type your name" style="width:100%; padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);">
+      <div id="rv-name-note" style="font-size:13px; color:var(--muted); margin-top:8px;">Name is saved to this device; you may set it only once.</div>
+
+      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+        <div id="rv-captcha-q" style="color:#006400; font-size:13px;">&nbsp;</div>
+        <input id="rv-captcha-a" placeholder="Answer" style="padding:8px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04); width:120px;">
+        <button id="rv-new" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:transparent; color:#006400;">New</button>
+      </div>
+
+      <textarea id="rv-text" rows="4" placeholder="Write your review..." style="width:100%; padding:10px; border-radius:8px; margin-top:12px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);"></textarea>
+
+      <button id="rv-send" style="width:100%; margin-top:12px; padding:10px; border-radius:8px; background:linear-gradient(135deg,#6a5cff,#2ad1ff); color:#041028; font-weight:700; border:none;">Add your review</button>
+    </div>
+  </div>
+
+  <div id="rv-list-root" style="max-width:980px; margin:12px auto; padding:0 12px;">
+    <h2 style="margin:0 0 12px;">Visitor Reviews</h2>
+    <div id="rv-list" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<script>
+/* review_widget.js - paste-only widget
+   - Separate widget file. Does NOT modify main page buttons/styles.
+   - To open modal from main page review button call: openRv()
+   - No reset-name option.
+   - One name per device (stored in localStorage).
+   - Delete allowed only for review owner. Delete is permanent (localStorage) or attempted on server if API exists.
+*/
+(function(){
+  const API = '/api/reviews'; // optional server; widget works without it (fallback localStorage)
+  const NAME_KEY = 'rv_name_v1';
+  const REV_KEY = 'rv_reviews_v1';
+  const DEL_MAP = 'rv_del_map_v1';
+  let serverOK = null;
+
+  // expose open function for main page button
+  window.openRv = function(){ init(); document.getElementById('rv-modal').style.display='flex'; };
+
+  // init: attach elements (idempotent)
+  function init(){
+    if(document.getElementById('rv-root').dataset.inited) return;
+    document.getElementById('rv-root').dataset.inited = '1';
+    document.getElementById('rv-close').addEventListener('click', ()=>{ document.getElementById('rv-modal').style.display='none'; });
+    document.getElementById('rv-new').addEventListener('click', ()=>{ serverOK ? fetchCaptcha() : genCaptcha(); });
+    document.getElementById('rv-send').addEventListener('click', submitReview);
+    detectServer().then(()=>{ refreshCaptcha(); loadReviews(); });
+  }
+
+  // server detection
+  async function detectServer(){
+    try{
+      const r = await fetch(API + '/health', {cache:'no-store'}); if(r.ok){ serverOK = true; return; }
+    }catch(e){}
+    try{
+      const r2 = await fetch(API + '?limit=1', {cache:'no-store'}); if(r2.ok){ serverOK = true; return; }
+    }catch(e){}
+    serverOK = false;
+  }
+
+  // captcha
+  async function fetchCaptcha(){
+    try{
+      const r = await fetch(API + '/captcha', {cache:'no-store'});
+      if(!r.ok) throw new Error();
+      const j = await r.json();
+      setCaptcha(j.cid||'', j.question||'');
+    }catch(e){
+      serverOK = false; genCaptcha();
+    }
+  }
+  function genCaptcha(){
+    const a = Math.floor(Math.random()*8)+2;
+    const b = Math.floor(Math.random()*8)+1;
+    setCaptcha('local', `${a} + ${b} = ?`, String(a+b));
+  }
+  function setCaptcha(cid, q, ans){
+    const qEl = document.getElementById('rv-captcha-q');
+    qEl.innerText = q;
+    qEl.dataset.cid = cid || '';
+    if(ans !== undefined) qEl.dataset.ans = ans;
+    else delete qEl.dataset.ans;
+  }
+  function refreshCaptcha(){ if(serverOK) fetchCaptcha(); else genCaptcha(); }
+
+  // name handling
+  function loadNameState(){
+    const name = localStorage.getItem(NAME_KEY);
+    const inp = document.getElementById('rv-name');
+    const note = document.getElementById('rv-name-note');
+    if(name){ inp.value=name; inp.disabled=true; note.innerHTML = '<span style="color:#006400;font-weight:600;">Name: '+escapeHtml(name)+'</span>'; }
+    else { inp.value=''; inp.disabled=false; note.innerText='Name is saved to this device; you may set it only once.'; }
+  }
+
+  // submit
+  async function submitReview(){
+    const storedName = localStorage.getItem(NAME_KEY);
+    const nameInp = document.getElementById('rv-name');
+    let name = storedName;
+    if(!name){
+      const entered = nameInp.value.trim();
+      if(!entered){ alert('Type your name'); return; }
+      const cid = document.getElementById('rv-captcha-q').dataset.cid || '';
+      const ans = document.getElementById('rv-captcha-a').value.trim();
+      if(!ans){ alert('Answer captcha'); return; }
+      if(serverOK){
+        try{
+          const res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name:entered, text:'', captcha_id:cid, captcha_answer:ans}) });
+          const j = await res.json();
+          if(!res.ok){ alert(j.error||'Server refused'); return; }
+          localStorage.setItem(NAME_KEY, entered);
+          if(j.delete_token && j.id){ const m = JSON.parse(localStorage.getItem(DEL_MAP)||'{}'); m[String(j.id)] = j.delete_token; localStorage.setItem(DEL_MAP, JSON.stringify(m)); }
+          name = entered;
+        }catch(e){ alert('Network error creating name'); return; }
+      } else {
+        const expected = document.getElementById('rv-captcha-q').dataset.ans;
+        if(String(ans) !== String(expected)){ alert('Captcha wrong'); return; }
+        localStorage.setItem(NAME_KEY, entered);
+        name = entered;
+      }
+    }
+
+    const text = document.getElementById('rv-text').value.trim();
+    if(!text){ alert('Write review'); return; }
+
+    if(serverOK){
+      try{
+        const cid = document.getElementById('rv-captcha-q').dataset.cid || '';
+        const ans = document.getElementById('rv-captcha-a').value.trim();
+        const res = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, text, captcha_id:cid, captcha_answer:ans}) });
+        const j = await res.json();
+        if(!res.ok){ alert(j.error||'Publish failed'); serverOK = false; throw new Error('server fail'); }
+        if(j.delete_token && j.id){ const m = JSON.parse(localStorage.getItem(DEL_MAP)||'{}'); m[String(j.id)] = j.delete_token; localStorage.setItem(DEL_MAP, JSON.stringify(m)); }
+        document.getElementById('rv-text').value = '';
+        await loadServerReviews();
+        refreshCaptcha();
+      }catch(e){ console.error(e); }
+    } else {
+      const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]');
+      const rec = { id: Date.now(), name, text, ts: Date.now() };
+      arr.unshift(rec);
+      localStorage.setItem(REV_KEY, JSON.stringify(arr.slice(0,1000)));
+      document.getElementById('rv-text').value = '';
+      loadFallback();
+    }
+
+    loadNameState();
+    document.getElementById('rv-modal').style.display='none';
+  }
+
+  // load reviews
+  async function loadServerReviews(){
+    try{
+      const r = await fetch(API + '?limit=200', {cache:'no-store'});
+      if(!r.ok) throw new Error();
+      const j = await r.json();
+      render(j.reviews || []);
+    }catch(e){ serverOK = false; loadFallback(); }
+  }
+  function loadFallback(){ const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]'); render(arr); }
+
+  function render(list){
+    const root = document.getElementById('rv-list');
+    root.innerHTML = '';
+    if(!list || !list.length){ root.innerHTML = '<div style="color:var(--muted);font-size:13px;">No reviews yet.</div>'; return; }
+    const delMap = JSON.parse(localStorage.getItem(DEL_MAP)||'{}');
+    const myName = localStorage.getItem(NAME_KEY);
+    list.forEach(r=>{
+      const id = r.id || r.ts || (r._id || Date.now());
+      const timeStr = new Date(r.ts || r.created_at || Date.now()).toLocaleString();
+      const nameHtml = '<span style="color:#006400;font-weight:700;">'+escapeHtml(r.name||'Anon')+'</span>';
+      const textHtml = '<div style="margin-top:6px;color:var(--muted);white-space:pre-wrap;">'+escapeHtml(r.text||'')+'</div>';
+      const canDeleteLocal = (!serverOK && myName && myName === r.name);
+      const canDeleteServer = (serverOK && (delMap[String(id)]));
+      const canDelete = canDeleteLocal || canDeleteServer;
+      const delBtn = '<button class="rv-del" data-id="'+encodeURIComponent(id)+'" style="background:#5c3317;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:'+ (canDelete? 'pointer':'default') +';">Delete</button>';
+      const item = document.createElement('div');
+      item.style.padding='12px';
+      item.style.borderRadius='10px';
+      item.style.background='rgba(255,255,255,0.03)';
+      item.style.border='1px solid rgba(255,255,255,0.05)';
+      item.style.marginBottom='10px';
+      item.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+                      + '<div>'+nameHtml+'<div style="font-size:12px;color:var(--muted);">'+escapeHtml(timeStr)+'</div></div>'
+                      + '<div style="text-align:right;">'+delBtn+'</div></div>' + textHtml;
+      root.appendChild(item);
+    });
+    Array.from(document.querySelectorAll('.rv-del')).forEach(b=>b.addEventListener('click', onDelete));
+  }
+
+  async function onDelete(ev){
+    const id = decodeURIComponent(ev.currentTarget.getAttribute('data-id'));
+    if(!confirm('Delete this review?')) return;
+    const delMap = JSON.parse(localStorage.getItem(DEL_MAP)||'{}');
+    const token = delMap[String(id)];
+    const myName = localStorage.getItem(NAME_KEY);
+
+    if(serverOK && token){
+      try{
+        const res = await fetch(API + '/' + encodeURIComponent(id), { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ delete_token: token }) });
+        const j = await res.json();
+        if(!res.ok){ alert(j.error || 'Delete failed'); return; }
+        delete delMap[String(id)];
+        localStorage.setItem(DEL_MAP, JSON.stringify(delMap));
+        await loadServerReviews();
+        return;
+      }catch(e){ alert('Network error deleting'); return; }
+    }
+
+    if(!serverOK){
+      const arr = JSON.parse(localStorage.getItem(REV_KEY)||'[]');
+      const idx = arr.findIndex(x => String(x.id) === String(id));
+      if(idx === -1){ alert('Not found'); return; }
+      if(myName && arr[idx].name !== myName){ alert('Only the review author can delete'); return; }
+      arr.splice(idx,1);
+      localStorage.setItem(REV_KEY, JSON.stringify(arr));
+      loadFallback();
+      return;
+    }
+
+    alert('Cannot delete: token missing.');
+  }
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])); }
+
+  // public load trigger
+  window.loadRvWidget = function(){ init(); loadNameState(); loadFallback(); };
+
+  // auto-init minimal: attach to DOMContentLoaded to ensure root exists
+  document.addEventListener('DOMContentLoaded', function(){ const root = document.getElementById('rv-root'); if(root) { root.style.display='block'; loadNameState(); detectServer().then(()=>{ refreshCaptcha(); loadFallback(); }); } });
+})();
+</script>

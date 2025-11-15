@@ -1,0 +1,177 @@
+<!-- BEGIN review snippet -->
+<div id="review-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(2,6,10,0.6); z-index:1200; align-items:center; justify-content:center;">
+  <div id="review-modal" style="width:92%; max-width:580px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); color:var(--text);">
+    <h3 style="margin:0 0 8px;">Write Your Review</h3>
+    <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Type your name (one name per device/browser) and your review. Complete captcha to publish.</div>
+    <div style="display:flex; gap:8px; margin-bottom:8px;">
+      <input id="rv-name" placeholder="Your name" style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text);">
+    </div>
+    <div style="margin-bottom:8px;">
+      <textarea id="rv-text" rows="4" placeholder="Add your review" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text);"></textarea>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+      <button id="rv-new-captcha" class="btn" style="padding:8px 10px; border-radius:8px;">New captcha</button>
+      <div id="rv-captcha-q" style="color:var(--muted); font-size:14px;">—</div>
+      <input id="rv-captcha" placeholder="answer" style="width:90px; padding:8px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text);">
+    </div>
+    <div style="display:flex; gap:8px; justify-content:space-between; align-items:center;">
+      <div>
+        <button id="rv-publish" class="btn btn-primary">Publish</button>
+        <button id="rv-close" class="btn" style="margin-left:8px;">Close</button>
+      </div>
+      <div style="font-size:12px; color:var(--muted);">Public reviews • permanent</div>
+    </div>
+    <div id="rv-feedback" style="margin-top:10px; color:#ffb86b; font-size:13px;"></div>
+    <hr style="border:none; height:12px;">
+    <div id="rv-list" style="max-height:240px; overflow:auto; margin-top:8px;"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API = '/api/reviews';
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days||365)*24*60*60*1000);
+    document.cookie = name + "=" + encodeURIComponent(value) + ";path=/;expires=" + d.toUTCString();
+  }
+  function getCookie(name){
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : null;
+  }
+  const backdrop = document.getElementById('review-modal-backdrop');
+  const rvName = document.getElementById('rv-name');
+  const rvText = document.getElementById('rv-text');
+  const rvCaptchaQ = document.getElementById('rv-captcha-q');
+  const rvCaptchaInput = document.getElementById('rv-captcha');
+  const rvPublish = document.getElementById('rv-publish');
+  const rvClose = document.getElementById('rv-close');
+  const rvNewCaptcha = document.getElementById('rv-new-captcha');
+  const rvFeedback = document.getElementById('rv-feedback');
+  const rvList = document.getElementById('rv-list');
+  function openModal(){
+    const stored = getCookie('review_name');
+    if(stored) rvName.value = stored;
+    backdrop.style.display = 'flex';
+    fetchCaptcha();
+    loadReviews();
+    rvFeedback.textContent = '';
+  }
+  function closeModal(){ backdrop.style.display = 'none'; }
+  async function fetchCaptcha(){
+    rvCaptchaInput.value = '';
+    rvCaptchaQ.textContent = '...';
+    try {
+      const res = await fetch(API + '/captcha');
+      const j = await res.json();
+      rvCaptchaQ.textContent = j.question || '—';
+    } catch(e){ rvCaptchaQ.textContent = 'captcha error'; }
+  }
+  async function loadReviews(){
+    rvList.innerHTML = '<div style="color:var(--muted); padding:8px;">Loading…</div>';
+    try {
+      const res = await fetch(API + '/');
+      const j = await res.json();
+      const reviews = (j.reviews||[]);
+      if(!reviews.length){ rvList.innerHTML = '<div style="color:var(--muted); padding:8px;">No reviews yet.</div>'; return; }
+      rvList.innerHTML = '';
+      reviews.forEach(r => {
+        const el = document.createElement('div');
+        el.style.padding = '10px';
+        el.style.borderRadius = '8px';
+        el.style.marginBottom = '8px';
+        el.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.02), transparent)';
+        el.innerHTML = `
+          <div style="font-weight:700; color:var(--text);">${escapeHtml(r.name)} <span style="font-weight:500; color:var(--muted); font-size:12px;">— ${new Date(r.ts*1000).toLocaleString()}</span></div>
+          <div style="margin-top:6px; color:var(--text);">${escapeHtml(r.text)}</div>
+          <div style="margin-top:8px;">
+            <button data-id="${r.id}" class="rv-delete btn" style="padding:6px 10px; border-radius:8px; font-size:13px;">Delete</button>
+          </div>
+        `;
+        rvList.appendChild(el);
+      });
+      rvList.querySelectorAll('.rv-delete').forEach(btn => {
+        btn.addEventListener('click', onDeleteClick);
+      });
+    } catch(e){ rvList.innerHTML = '<div style="color:var(--muted); padding:8px;">Load error</div>'; }
+  }
+  async function publish(){
+    rvFeedback.textContent = '';
+    const name = rvName.value.trim();
+    const text = rvText.value.trim();
+    const captcha = rvCaptchaInput.value.trim();
+    if(!name){ rvFeedback.textContent = 'Name required'; return; }
+    if(!text){ rvFeedback.textContent = 'Review required'; return; }
+    if(!captcha){ rvFeedback.textContent = 'Complete captcha'; return; }
+    rvPublish.disabled = true;
+    try {
+      const res = await fetch(API + '/', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, text, captcha })
+      });
+      const j = await res.json();
+      if(!res.ok){ rvFeedback.textContent = j.error || 'Publish failed'; await fetchCaptcha(); return; }
+      const id = j.review && j.review.id;
+      const token = j.delete_token;
+      if(id && token){
+        try{
+          const map = JSON.parse(localStorage.getItem('review_delete_tokens')||'{}');
+          map[id] = token;
+          localStorage.setItem('review_delete_tokens', JSON.stringify(map));
+        }catch(e){}
+      }
+      setCookie('review_name', name, 365);
+      rvText.value = '';
+      rvFeedback.style.color = '#9ae6a8';
+      rvFeedback.textContent = 'Published';
+      await loadReviews();
+      await fetchCaptcha();
+    } catch(e){
+      rvFeedback.style.color = '#ffb86b';
+      rvFeedback.textContent = 'Network error';
+    } finally {
+      rvPublish.disabled = false;
+      setTimeout(()=> { rvFeedback.style.color=''; rvFeedback.textContent=''; }, 2500);
+    }
+  }
+  async function onDeleteClick(ev){
+    const id = ev.currentTarget.getAttribute('data-id');
+    const map = JSON.parse(localStorage.getItem('review_delete_tokens')||'{}') || {};
+    const token = map[id];
+    if(!token){ alert('delete_token required'); return; }
+    if(!confirm('Delete this review?')) return;
+    try {
+      const res = await fetch(API + '/' + id, {
+        method: 'DELETE',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ delete_token: token })
+      });
+      const j = await res.json();
+      if(!res.ok){ alert(j.error || 'Delete failed'); return; }
+      delete map[id];
+      localStorage.setItem('review_delete_tokens', JSON.stringify(map));
+      alert('Deleted!');
+      await loadReviews();
+    } catch(e){ alert('Network error'); }
+  }
+  function escapeHtml(s){
+    return String(s || '').replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+  }
+  document.getElementById('rv-close').addEventListener('click', closeModal);
+  document.getElementById('rv-publish').addEventListener('click', publish);
+  document.getElementById('rv-new-captcha').addEventListener('click', fetchCaptcha);
+  (function attachToReviewButton(){
+    const anchors = Array.from(document.querySelectorAll('a,button'));
+    for(const el of anchors){
+      if(el.innerText && el.innerText.trim().toLowerCase() === 'review'){
+        el.addEventListener('click', function(ev){ ev.preventDefault(); openModal(); });
+        break;
+      }
+    }
+  })();
+  window.openReviewModal = openModal;
+  window.closeReviewModal = closeModal;
+})();
+</script>
+<!-- END review snippet -->

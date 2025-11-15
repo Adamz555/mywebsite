@@ -1,6 +1,9 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, jsonify
+import os
+
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+# routes (main site)
 @app.route('/')
 def index():
     return render_template('index.html', title="AJMAL ADAM Blockchain Research & Technologies")
@@ -29,5 +32,14 @@ def contact():
 def labs():
     return render_template('labs.html', title="🧪 Labs | Ajmal Adam Research")
 
+# register reviews API
+try:
+    import reviews_api
+    reviews_api.init_reviews(app)
+except Exception as e:
+    # if initialization fails, still run site; /api/reviews will be unavailable
+    print("reviews_api init error:", e)
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080)
+    # development server (bind to all local interfaces)
+    app.run(host='0.0.0.0', port=8080)
