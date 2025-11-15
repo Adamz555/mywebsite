@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block content %}
+<section id="research-top" class="section">
+  <div class="card" style="background: linear-gradient(180deg, rgba(106,92,255,0.06), rgba(42,209,255,0.03)); border:1px solid rgba(106,92,255,0.12);">
+    <div style="display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap;">
+      <div>
+        <a href="{{ url_for('research') }}" style="text-decoration:none;">
+          <h2 style="font-size:20px; margin:0; display:inline-block;">
+            <span style="background: linear-gradient(90deg,#6a5cff,#2ad1ff); -webkit-background-clip:text; color:transparent; font-weight:800;">
+              Ajmal Adam Research Files (Basics only)
+            </span>
+          </h2>
+        </a>
+        <p style="margin:6px 0 0; font-size:13px; color:var(--muted);">
+          Concise, colourful PoC descriptions and practical minimal proofs-of-concept. Select a topic below to view detailed material.
+        </p>
+      </div>
+
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 12px; border-radius:10px;">Back to Home</a>
+        <a href="#research-top" class="subnav mini-btn" style="padding:8px 12px; border-radius:10px;">Research Files (main)</a>
+      </div>
+    </div>
+
+    <div style="margin-top:14px; display:block;">
+      <div class="card" style="padding:14px; border-radius:10px;">
+        <h3 style="margin:0 0 8px; font-size:16px; color:#6a5cff;">Overview</h3>
+        <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+          This page collects basic research files: Smart Contracts, Decentralized Finance, and Blockchain VM & Concepts with practical PoC examples and concise security notes.
+        </p>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+        <button onclick="openTopic('topic-smart')" class="subnav mini-btn" style="background:linear-gradient(90deg,#6a5cff,#2ad1ff); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">Smart Contract</button>
+        <button onclick="openTopic('topic-defi')" class="subnav mini-btn" style="background:linear-gradient(90deg,#ffb86b,#ff8a5b); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">DeFi</button>
+        <button onclick="openTopic('topic-bvm')" class="subnav mini-btn" style="background:linear-gradient(90deg,#2ad1ff,#6a5cff); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">Blockchain Virtual Machine &amp; Concepts</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="topics-container" style="margin-top:18px;">
+
+    <div id="research-main" style="display:block;">
+      <div class="card" style="padding:14px;">
+        <h3 style="color:#6a5cff; margin:0 0 8px;">Quick Index</h3>
+        <ul style="color:var(--muted); font-size:13px; line-height:1.6;">
+          <li><strong>Smart Contract:</strong> Decentralized voting (vote-hash anchoring), privacy-preserving on-chain record, minimal audit guidance.</li>
+          <li><strong>DeFi:</strong> Simple lending pool & share model — deposit/withdraw maths and security notes.</li>
+          <li><strong>Blockchain VM & Concepts:</strong> Telemetry anchoring (IPFS + on-chain CID anchoring), verification and provenance notes for telemetry.</li>
+        </ul>
+        <p style="font-size:13px; color:var(--muted); margin-top:10px;">
+          Click the topic buttons to view detailed content, PoC code (colourful formatted), and security notes.
+        </p>
+      </div>
+    </div>
+
+    <div id="topic-smart" style="display:none; margin-top:12px;">
+      <div class="card" style="padding:14px; border-left:4px solid #6a5cff;">
+        <h3 style="color:#6a5cff; margin:0 0 8px;">Smart Contract — Decentralized Voting (Vote Hash Anchoring) <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
+
+        <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+          Summary: A minimal on-chain flow that stores salted vote hashes only, avoiding plaintext votes on-chain and enabling later verification.
+        </p>
+
+        <h4 style="color:#2ad1ff; margin-top:8px;">Design summary</h4>
+        <ul style="font-size:13px; color:var(--muted);">
+          <li>Admin registers eligible voter addresses.</li>
+          <li>Voter computes a salted vote hash off-chain and submits only the hash.</li>
+          <li>Contract stores the hash and marks the address as voted.</li>
+          <li>Organizer reveals payloads later for off-chain verification against stored hashes.</li>
+        </ul>
+
+        <h4 style="color:#2ad1ff; margin-top:8px;">Security notes</h4>
+        <ul style="font-size:13px; color:var(--muted);">
+          <li>Protect admin functions with multisig or timelock in production.</li>
+          <li>Keep salts off-chain and stored securely; avoid on-chain plaintext.</li>
+        </ul>
+
+        <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(106,92,255,0.06);">
+          <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VoteHashAnchor {
+    address public admin;
+    mapping(address => bool) public registered;
+    mapping(bytes32 => bool) public voteSeen;
+    mapping(address => bool) public hasVoted;
+    bool public closed;
+
+    constructor() { admin = msg.sender; }
+
+    modifier onlyAdmin { require(msg.sender == admin, "admin only"); _; }
+    modifier open { require(!closed, "poll closed"); _; }
+
+    function registerVoter(address v) external onlyAdmin { registered[v] = true; }
+    function closePoll() external onlyAdmin { closed = true; }
+
+    // submit hash of (pollId || voterSalt || choice)
+    function submitVote(bytes32 h) external open {
+        require(registered[msg.sender], "not registered");
+        require(!hasVoted[msg.sender], "already voted");
+        require(!voteSeen[h], "duplicate vote");
+        voteSeen[h] = true;
+        hasVoted[msg.sender] = true;
+    }
+}
+          </pre>
+          <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+            <strong style="color:#6a5cff;">Note:</strong> For production use consider privacy-enhancing techniques (zk-proofs or blind signatures); this is a simple PoC.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="topic-defi" style="display:none; margin-top:12px;">
+      <div class="card" style="padding:14px; border-left:4px solid #ffb86b;">
+        <h3 style="color:#ffb86b; margin:0 0 8px;">DeFi — Simple Lending Pool &amp; Share Model <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
+
+        <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+          Summary: Depositors receive pool shares representing proportional ownership; withdrawals redeem shares for assets at current asset-per-share.
+        </p>
+
+        <h4 style="color:#ffd27a; margin-top:8px;">Model summary</h4>
+        <ul style="font-size:13px; color:var(--muted);">
+          <li>Initial depositor defines an initial share-to-asset ratio.</li>
+          <li>Subsequent deposits mint shares proportional to existing totalAssets and totalShares.</li>
+          <li>Withdrawals burn shares and transfer assets equal to shareAmount * totalAssets / totalShares.</li>
+        </ul>
+
+        <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(255,184,107,0.06);">
+          <div style="font-weight:800; color:#6a5cff; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC20 { function transferFrom(address from, address to, uint amount) external returns(bool); function transfer(address to, uint amount) external returns(bool); function balanceOf(address owner) external view returns(uint); }
+
+contract SimpleLendingPool {
+    IERC20 public immutable token;
+    uint public totalShares;
+    uint public totalAssets;
+
+    mapping(address => uint) public shares;
+
+    constructor(address _token) { token = IERC20(_token); }
+
+    function deposit(uint amount) external {
+        require(amount>0, "zero");
+        uint minted;
+        if (totalShares == 0) {
+            minted = amount;
+        } else {
+            minted = amount * totalShares / totalAssets;
+        }
+        token.transferFrom(msg.sender, address(this), amount);
+        totalAssets += amount;
+        totalShares += minted;
+        shares[msg.sender] += minted;
+    }
+
+    function withdraw(uint shareAmount) external {
+        require(shareAmount>0 && shares[msg.sender]>=shareAmount, "invalid");
+        uint value = shareAmount * totalAssets / totalShares;
+        shares[msg.sender] -= shareAmount;
+        totalShares -= shareAmount;
+        totalAssets -= value;
+        token.transfer(msg.sender, value);
+    }
+}
+          </pre>
+          <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+            <strong style="color:#ffb86b;">Example:</strong> If pool = 100 tokens and 100 shares → deposit 10 tokens → mint 10 shares. If later pool = 150 tokens, 10 shares = 15 tokens.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="topic-bvm" style="display:none; margin-top:12px;">
+      <div class="card" style="padding:14px; border-left:4px solid #2ad1ff;">
+        <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain Virtual Machine &amp; Concepts — Telemetry Anchoring (IPFS + On-chain CID)</h3>
+
+        <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+          Goal: Upload large telemetry snapshots to IPFS and anchor CIDs on-chain to achieve tamper-evidence and verifiable provenance for telemetry data.
+        </p>
+
+        <h4 style="color:#6a5cff; margin-top:8px;">Flow summary</h4>
+        <ol style="font-size:13px; color:var(--muted);">
+          <li>Upload telemetry snapshot to IPFS and obtain CID.</li>
+          <li>Submit CID, timestamp, and submitter to the on-chain anchor contract.</li>
+          <li>Auditors fetch the CID from IPFS and verify snapshot integrity and provenance.</li>
+        </ol>
+
+        <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(42,209,255,0.06);">
+          <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity Anchor PoC (Proof of Concept)</div>
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TelemetryAnchor {
+    struct Entry { string cid; uint256 ts; address submitter; }
+    Entry[] public entries;
+
+    event Anchored(uint indexed id, string cid, uint256 ts, address indexed submitter);
+
+    function anchorCID(string calldata cid) external {
+        entries.push( Entry({ cid: cid, ts: block.timestamp, submitter: msg.sender }) );
+        emit Anchored(entries.length-1, cid, block.timestamp, msg.sender);
+    }
+
+    function getEntry(uint id) external view returns(string memory, uint256, address) {
+        Entry storage e = entries[id];
+        return (e.cid, e.ts, e.submitter);
+    }
+}
+          </pre>
+          <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+            <strong style="color:#2ad1ff;">Notes:</strong> Combine IPFS CIDs with off-chain signed attestations and consider multi-anchor strategies for stronger provenance guarantees.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;">
+      <div style="font-size:12px; color:var(--muted); line-height:1.4;">
+        <strong>Basic info only — confidentiality note:</strong>
+        <p style="margin:6px 0 0;">
+          These files provide basic PoC material only. Production-grade, optimized, or proprietary details are intentionally omitted.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  function hideAllTopics(){
+    var ids = ['topic-smart','topic-defi','topic-bvm','research-main'];
+    ids.forEach(function(i){ var e = document.getElementById(i); if(e) e.style.display='none'; });
+  }
+  function openTopic(id){
+    hideAllTopics();
+    if(id === 'research-main') {
+      document.getElementById('research-main').style.display = 'block';
+      window.scrollTo({top: document.getElementById('research-top').offsetTop - 12, behavior:'smooth'});
+      return;
+    }
+    var el = document.getElementById(id);
+    if(el) el.style.display = 'block';
+    setTimeout(function(){
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 120);
+  }
+  (function(){ openTopic('research-main'); })();
+</script>
+
+{% endblock %}

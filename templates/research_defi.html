@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 style="color:#ffb86b; margin:0 0 6px;">Decentralized Finance — Simple Lending Pool &amp; Share Model</h2>
+        <p style="color:var(--muted); margin:0 0 8px; font-size:13px;">Concise explanation, PoC and example calculations (Proof of Concept).</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 12px;">Ajmal</a>
+        <a href="{{ url_for('research') }}" class="subnav mini-btn" style="padding:8px 12px;">Previous</a>
+      </div>
+    </div>
+
+    <hr style="border:none; height:12px; background:transparent;" />
+
+    <h3 style="color:#ffd27a; margin-top:8px;">Model summary</h3>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Depositors receive pool shares representing proportional ownership.</li>
+      <li>Deposits mint shares proportional to existing totalAssets and totalShares.</li>
+      <li>Withdrawals redeem shares for assets at current asset-per-share.</li>
+    </ul>
+
+    <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(255,184,107,0.06);">
+      <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
+      <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; color:#ffd27a;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IERC20 { function transferFrom(address from, address to, uint amount) external returns(bool); function transfer(address to, uint amount) external returns(bool); function balanceOf(address owner) external view returns(uint); }
+
+contract SimpleLendingPool {
+    IERC20 public immutable token;
+    uint public totalShares;
+    uint public totalAssets;
+
+    mapping(address => uint) public shares;
+
+    constructor(address _token) { token = IERC20(_token); }
+
+    function deposit(uint amount) external {
+        require(amount>0, "zero");
+        uint minted;
+        if (totalShares == 0) {
+            minted = amount;
+        } else {
+            minted = amount * totalShares / totalAssets;
+        }
+        token.transferFrom(msg.sender, address(this), amount);
+        totalAssets += amount;
+        totalShares += minted;
+        shares[msg.sender] += minted;
+    }
+
+    function withdraw(uint shareAmount) external {
+        require(shareAmount>0 && shares[msg.sender]>=shareAmount, "invalid");
+        uint value = shareAmount * totalAssets / totalShares;
+        shares[msg.sender] -= shareAmount;
+        totalShares -= shareAmount;
+        totalAssets -= value;
+        token.transfer(msg.sender, value);
+    }
+}
+      </pre>
+      <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+        <strong style="color:#ffb86b;">Example:</strong> pool=100 tokens &amp; 100 shares → deposit 10 tokens → mint 10 shares.
+        Later pool=150 tokens → 10 shares = 15 tokens.
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

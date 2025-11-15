@@ -29,18 +29,5 @@ def contact():
 def labs():
     return render_template('labs.html', title="🧪 Labs | Ajmal Adam Research")
 
-
-@app.route('/research/defi')
-def research_defi():
-    return render_template('research_defi.html', title="Research | DeFi | Ajmal Adam")
-
-@app.route('/research/election')
-def research_election():
-    return render_template('research_election.html', title="Research | Election Voting | Ajmal Adam")
-
-@app.route('/research/bvm')
-def research_bvm():
-    return render_template('research_bvm.html', title="Research | Blockchain VM | Ajmal Adam")
-
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080)
