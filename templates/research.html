@@ -66,10 +66,20 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#6a5cff; margin:0 0 8px;">Decentralized Election Voting — Vote Hash Anchoring <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
+
+        <!-- New: concise, accurate explanation about Smart Contracts placed here -->
+        <p style="font-size:13px; color:var(--muted); line-height:1.6; margin-top:8px;">
+          Smart contracts are self-executing programs that run on a blockchain. They encode rules and business logic in code so that when predefined conditions are met, the contract executes automatically and immutably. Key properties: deterministic execution, transparency (code and state visible on-chain), and censorship-resistance. Common uses include token standards, automated exchanges, lending protocols, and on-chain governance. Because smart contracts handle value, careful design and security practices are essential: keep logic simple, use well-audited libraries, apply access control patterns, validate inputs, handle edge cases for arithmetic and state, and add upgrade/time-lock or multisig for sensitive admin functions.
+        </p>
+
+        <p style="font-size:13px; color:var(--muted); line-height:1.6; margin-top:6px;">
+          Below is a focused PoC showing how a simple voting flow can be implemented as a smart contract while demonstrating privacy-by-design (storing salted vote hashes only). Treat this as educational — production systems require stronger privacy and operational controls.
+        </p>
+        <!-- End of added Smart Contract explanation -->
 
         <p style="font-size:13px; color:var(--muted); line-height:1.6;">
           Summary: A minimal on-chain flow that stores salted vote hashes only, avoiding plaintext votes on-chain and enabling later verification.
@@ -132,7 +142,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#ffb86b; margin:0 0 8px;">Decentralized Finance — Simple Lending Pool &amp; Share Model <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
@@ -201,7 +211,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain Virtual Machine &amp; Concepts — Telemetry Anchoring (IPFS + On-chain CID)</h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
@@ -252,7 +262,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain For Space Research</h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
