@@ -1,300 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div style="max-width:980px; margin:12px auto; padding:0 12px;">
-  <h2 style="margin:0 0 12px;">Visitor Reviews</h2>
+<section class="section">
+  <div class="card" style="padding:14px; max-width:920px; margin:0 auto;">
+    <h2>Leave a Review</h2>
 
-  <div style="margin-bottom:12px;">
-    <button onclick="openReview()" style="padding:10px 14px; border-radius:8px; border:none; background:linear-gradient(135deg,#6a5cff,#2ad1ff); color:#041028; font-weight:700;">Write a Review</button>
-  </div>
+    <p style="color:darkgreen;">
+      Type your name once (saved to this device), then write your review. Captcha is required to create review.
+    </p>
 
-  <!-- REVIEW MODAL -->
-  <div id="review-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
-    <div style="width:92%; max-width:520px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); color:var(--text);">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; font-size:16px;">Write Your Review</h3>
-        <button onclick="closeReview()" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
-      </div>
+    <input id="rv-name" placeholder="Your name" style="padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid var(--border);">
 
-      <p id="rv-instruction" style="margin:8px 0 12px; font-size:13px; color:#006400;">
-        Type your name once (saved to this device), then write your review. Captcha is required to create name.
-      </p>
-
-      <input id="review-name" placeholder="Type your name" style="width:100%; padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);">
-      <div id="review-name-note" style="font-size:13px; color:var(--muted); margin-top:8px;">You can set name only once on this device.</div>
-
-      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
-        <div id="rv-captcha-question" style="color:#006400; font-size:13px;">&nbsp;</div>
-        <input id="rv-captcha-answer" placeholder="Answer" style="padding:8px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04); width:120px;">
-        <button id="rv-new-captcha" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:transparent; color:#006400;">New</button>
-      </div>
-
-      <textarea id="review-text" rows="4" placeholder="Write your review..." style="width:100%; padding:10px; border-radius:8px; margin-top:12px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04);"></textarea>
-
-      <button id="rv-publish" style="width:100%; margin-top:12px; padding:10px; border-radius:8px; background:linear-gradient(135deg,#6a5cff,#2ad1ff); color:#041028; font-weight:700; border:none;">Add your review</button>
+    <div style="margin-top:8px; color:darkgreen;" id="rv-captcha-box">
+      <span id="rv-q"></span>
+      <input id="rv-a" placeholder="Answer" style="padding:8px; width:120px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:8px;">
+      <button id="rv-new" class="btn">New</button>
     </div>
-  </div>
 
-  <!-- REVIEW LIST -->
-  <div id="review-list" style="margin-top:18px;"></div>
-</div>
+    <textarea id="rv-text" rows="4" placeholder="Write review..." style="margin-top:10px; padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid var(--border);"></textarea>
+
+    <button id="rv-send" class="btn btn-primary" style="margin-top:10px;">Add Review</button>
+
+    <div id="rv-status" style="margin-top:8px; color:var(--muted); font-size:13px;"></div>
+
+    <hr style="margin:16px 0; border-color:var(--border);">
+
+    <h3>Public Reviews</h3>
+    <div id="rv-list" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow:auto;"></div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 
 <script>
-/* Minimal self-contained review page script.
-   - stores name in localStorage (one name per device)
-   - uses localStorage fallback for persistence if no server API available
-   - delete is permanent (removes from localStorage); owner-only deletion enforced
-   - captcha required to create name (fallback client-side math)
-*/
-const API_BASE = "/api/reviews"; // optional server endpoint
-const NAME_KEY = "aj_name_v1";
-const REV_KEY = "aj_reviews_local_v1";
-const DELETE_MAP_KEY = "aj_rev_delete_map_v1";
-let serverAvailable = null;
+const STATICMAN = "https://staticman3.herokuapp.com/v3/entry/github/<GITHUB_USER>/<GITHUB_REPO>/<BRANCH>";
+const API = "https://api.github.com/repos/<GITHUB_USER>/<GITHUB_REPO>/contents/data/comments?ref=<BRANCH>";
+const NAME_KEY="rv_name_v1"; const DEL_KEY="rv_del_v1";
 
-function openReview(){
-  loadNameState();
-  detectServerThenLoad();
-  document.getElementById('review-modal').style.display = 'flex';
+function cap(){let a=Math.floor(Math.random()*6)+2;let b=Math.floor(Math.random()*6)+1;
+document.getElementById("rv-q").innerText=a+" + "+b+" = ?"; document.getElementById("rv-q").dataset.ans=a+b;}
+cap(); document.getElementById("rv-new").onclick=cap;
+
+function loadName(){let n=localStorage.getItem(NAME_KEY); if(n){rv-name.value=n; rv-name.disabled=true;}}
+loadName();
+
+async function loadReviews(){
+ let box=document.getElementById("rv-list"); box.innerHTML="Loading…";
+ let r=await fetch(API); if(!r.ok){box.innerHTML="Error"; return;}
+ let files=await r.json(); if(!files.length){box.innerHTML="No reviews"; return;}
+ box.innerHTML="";
+ for(let f of files){
+   let txt=await fetch(f.download_url).then(r=>r.text());
+   let o=jsyaml.load(txt);
+   let d=document.createElement("div");
+   d.style.cssText="padding:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;";
+   d.innerHTML=`<div style='color:darkred;font-weight:700;'>${o.name}</div>
+                <div style='color:var(--muted);font-size:12px;'>${o.timestamp?new Date(o.timestamp).toLocaleString():""}</div>
+                <div style='margin-top:6px;color:var(--muted);white-space:pre-wrap;'>${o.text}</div>`;
+   box.appendChild(d);
+ }
 }
-function closeReview(){
-  document.getElementById('review-modal').style.display = 'none';
-}
+loadReviews();
 
-function loadNameState(){
-  const n = localStorage.getItem(NAME_KEY);
-  const inp = document.getElementById('review-name');
-  const note = document.getElementById('review-name-note');
-  if(n){
-    inp.value = n;
-    inp.disabled = true;
-    note.innerHTML = "<span style='color:#8b0000;font-weight:600;'>Name saved: " + n + "</span>";
-  } else {
-    inp.value = "";
-    inp.disabled = false;
-    note.innerText = "You can set name only once on this device.";
-  }
-}
-
-async function detectServerThenLoad(){
-  try{
-    const r = await fetch(API_BASE + '/health', {cache:'no-store'});
-    if(r.ok){ serverAvailable = true; await fetchCaptcha(); await loadServerReviews(); return; }
-  }catch(e){}
-  serverAvailable = false;
-  fetchCaptchaFallback();
-  loadFallbackReviews();
-}
-
-async function fetchCaptcha(){
-  if(serverAvailable === false) return fetchCaptchaFallback();
-  try{
-    const r = await fetch(API_BASE + '/captcha', {cache:'no-store'});
-    const j = await r.json();
-    document.getElementById('rv-captcha-question').innerText = j.question || '';
-    document.getElementById('rv-captcha-question').dataset.cid = j.cid || '';
-  }catch(e){
-    serverAvailable = false;
-    fetchCaptchaFallback();
-  }
-}
-function fetchCaptchaFallback(){
-  const a = Math.floor(Math.random()*8)+2;
-  const b = Math.floor(Math.random()*8)+1;
-  document.getElementById('rv-captcha-question').innerText = `${a} + ${b} = ?`;
-  document.getElementById('rv-captcha-question').dataset.cid = 'fallback';
-  document.getElementById('rv-captcha-question').dataset.ans = String(a+b);
-}
-
-document.getElementById('rv-new-captcha').addEventListener('click', function(e){
-  if(serverAvailable) fetchCaptcha(); else fetchCaptchaFallback();
-});
-
-document.getElementById('rv-publish').addEventListener('click', submitReview);
-
-async function submitReview(){
-  let name = localStorage.getItem(NAME_KEY);
-  const nameInput = document.getElementById('review-name');
-
-  if(!name){
-    const entered = nameInput.value.trim();
-    if(!entered){ alert('Type your name'); return; }
-    const cid = document.getElementById('rv-captcha-question').dataset.cid || '';
-    const ans = document.getElementById('rv-captcha-answer').value.trim();
-    if(!ans){ alert('Please answer captcha'); return; }
-
-    if(serverAvailable){
-      try{
-        const res = await fetch(API_BASE, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({name:entered, text:'', captcha_id:cid, captcha_answer:ans})
-        });
-        const j = await res.json();
-        if(!res.ok){ alert(j.error || 'Server refused'); return; }
-        localStorage.setItem(NAME_KEY, entered);
-        if(j.delete_token && j.id){
-          const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
-          map[String(j.id)] = j.delete_token;
-          localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
-        }
-        name = entered;
-        loadNameState();
-      }catch(e){ alert('Network error creating name'); return; }
-    } else {
-      const expected = document.getElementById('rv-captcha-question').dataset.ans;
-      if(String(ans) !== String(expected)){ alert('Captcha wrong'); return; }
-      localStorage.setItem(NAME_KEY, entered);
-      name = entered;
-      loadNameState();
-    }
-  }
-
-  const text = document.getElementById('review-text').value.trim();
-  if(!text){ alert('Write review'); return; }
-
-  if(serverAvailable){
-    try{
-      const cid = document.getElementById('rv-captcha-question').dataset.cid || '';
-      const ans = document.getElementById('rv-captcha-answer').value.trim();
-      const res = await fetch(API_BASE, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({name, text, captcha_id:cid, captcha_answer:ans})
-      });
-      const j = await res.json();
-      if(!res.ok){ alert(j.error || 'Publish failed'); serverAvailable = false; throw new Error('server fail'); }
-      if(j.delete_token && j.id){
-        const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
-        map[String(j.id)] = j.delete_token;
-        localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
-      }
-      document.getElementById('review-text').value = '';
-      await loadServerReviews();
-      fetchCaptcha();
-    }catch(e){
-      console.error(e);
-    }
-  } else {
-    const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]');
-    const rec = { id: Date.now(), name, text, ts: Date.now() };
-    arr.unshift(rec);
-    localStorage.setItem(REV_KEY, JSON.stringify(arr.slice(0,1000)));
-    document.getElementById('review-text').value = '';
-    loadFallbackReviews();
-  }
-
-  closeReview();
-}
-
-async function loadServerReviews(){
-  try{
-    const res = await fetch(API_BASE + '?limit=200', {cache:'no-store'});
-    if(!res.ok) throw new Error('no list');
-    const j = await res.json();
-    renderReviews(j.reviews || []);
-  }catch(e){
-    serverAvailable = false;
-    loadFallbackReviews();
-  }
-}
-
-function loadFallbackReviews(){
-  const arr = JSON.parse(localStorage.getItem(REV_KEY) || '[]');
-  renderReviews(arr);
-}
-
-function renderReviews(list){
-  const root = document.getElementById('review-list');
-  root.innerHTML = '';
-  if(!list || !list.length){
-    root.innerHTML = '<div style="color:var(--muted);font-size:13px;">No reviews yet.</div>';
-    return;
-  }
-  const deleteMap = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
-  const myName = localStorage.getItem(NAME_KEY);
-
-  list.forEach(r=>{
-    const id = r.id || r.ts || (r._id || Date.now());
-    const ts = r.ts || r.created_at || Date.now();
-    const nameEsc = String(r.name || 'Anon');
-    const textEsc = String(r.text || '');
-    const timeStr = new Date(ts).toLocaleString();
-    const ownerLocal = (!serverAvailable && myName && myName === r.name);
-    const ownerServer = (serverAvailable && (deleteMap[String(id)]));
-    const canDelete = ownerLocal || ownerServer;
-
-    const box = document.createElement('div');
-    box.style.padding = '12px';
-    box.style.borderRadius = '10px';
-    box.style.background = 'rgba(255,255,255,0.03)';
-    box.style.border = '1px solid rgba(255,255,255,0.05)';
-    box.style.marginBottom = '10px';
-    box.innerHTML = `
-      <div style="display:flex; justify-content:space-between;">
-        <div style="font-weight:700; color:#8b0000;">${escapeHtml(nameEsc)}</div>
-        <div style="font-size:12px; color:var(--muted);">${escapeHtml(timeStr)}</div>
-      </div>
-      <div style="margin-top:8px; color:var(--muted); white-space:pre-wrap;">${escapeHtml(textEsc)}</div>
-      <div style="text-align:right; margin-top:8px;">
-        <button class="rv-del" data-id="${id}" ${canDelete ? '' : 'disabled'}
-          style="padding:6px 10px; border-radius:6px; border:none; background:#5c3317; color:#fff; cursor:${canDelete ? 'pointer' : 'default'};">
-          Delete
-        </button>
-      </div>
-    `;
-    root.appendChild(box);
-  });
-
-  Array.from(document.querySelectorAll('.rv-del')).forEach(btn=>{
-    btn.addEventListener('click', onDeleteClick);
-  });
-}
-
-async function onDeleteClick(ev){
-  const id = ev.currentTarget.getAttribute('data-id');
-  if(!confirm('Delete this review?')) return;
-
-  const map = JSON.parse(localStorage.getItem(DELETE_MAP_KEY)||'{}');
-  const token = map[String(id)];
-
-  if(serverAvailable && token){
-    try{
-      const res = await fetch(API_BASE + '/' + encodeURIComponent(id), {
-        method:'DELETE',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ delete_token: token })
-      });
-      const j = await res.json();
-      if(!res.ok){ alert(j.error || 'Delete failed'); return; }
-      delete map[String(id)];
-      localStorage.setItem(DELETE_MAP_KEY, JSON.stringify(map));
-      await loadServerReviews();
-      return;
-    }catch(e){ alert('Network error deleting'); return; }
-  }
-
-  if(!serverAvailable){
-    const arr = JSON.parse(localStorage.getItem(REV_KEY)||'[]');
-    const myName = localStorage.getItem(NAME_KEY);
-    const idx = arr.findIndex(x => String(x.id) === String(id));
-    if(idx === -1){ alert('Not found'); return; }
-    if(myName && arr[idx].name !== myName){ alert('You can only delete your own review on this device'); return; }
-    arr.splice(idx,1);
-    localStorage.setItem(REV_KEY, JSON.stringify(arr));
-    loadFallbackReviews();
-    return;
-  }
-
-  alert('Cannot delete: delete token missing.');
-}
-
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; }); }
-
-// Init: attach quick handlers if page already open
-window.addEventListener('DOMContentLoaded', function(){
-  // keep UI ready (server detection and captcha when modal opened)
-});
+document.getElementById("rv-send").onclick=async()=>{
+ let nm=localStorage.getItem(NAME_KEY);
+ let name=nm||rv-name.value.trim();
+ if(!name){alert("Name");return;}
+ if(!nm){
+   if(rv-a.value.trim()!=document.getElementById("rv-q").dataset.ans){alert("Captcha wrong");return;}
+   localStorage.setItem(NAME_KEY,name);
+ }
+ let text=rv-text.value.trim(); if(!text){alert("Text");return;}
+ let body={fields:{name:name,text:text}};
+ rv-status.innerText="Publishing…";
+ let r=await fetch(STATICMAN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ if(!r.ok){rv-status.innerText="Error";return;}
+ rv-text.value=""; rv-status.innerText="Done"; setTimeout(loadReviews,1500);
+};
 </script>
 
 {% endblock %}

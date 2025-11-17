@@ -34,10 +34,8 @@ def labs():
 
 # register reviews API
 try:
-    import reviews_api
-    reviews_api.init_reviews(app)
+    pass
 except Exception as e:
-    # if initialization fails, still run site; /api/reviews will be unavailable
     print("reviews_api init error:", e)
 
 if __name__ == '__main__':

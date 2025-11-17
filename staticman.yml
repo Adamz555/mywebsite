@@ -1,0 +1,20 @@
+production: true
+github:
+  enabled: true
+  owner: "<GITHUB_USER>"
+  repo: "<GITHUB_REPO>"
+  branch: "<BRANCH>"
+
+options:
+  commit_message: "New review from {{fields.name}}"
+  filename_format: "data/comments/comment-{timestamp}.yml"
+  moderation: false
+  allowed_fields: ["name", "text"]
+
+fields:
+  name:
+    type: text
+    required: true
+  text:
+    type: textarea
+    required: true
