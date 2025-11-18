@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Intro - Ajmal Adam Blockchain & Technologies</title>
+<style>
+  :root{
+    --bg1:#021022;
+    --bg2:#071026;
+    --card-bg:rgba(255,255,255,0.04);
+    --accent1:#6a5cff;
+    --accent2:#2ad1ff;
+    --red:#c92b2b;
+    --text:#f3f6f9;
+  }
+  html,body{height:100%; margin:0; padding:0;}
+  body{
+    font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    background: linear-gradient(120deg,var(--bg1) 0%, #041025 40%, #071029 100%);
+    overflow:hidden;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .bg-wave{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(closest-side at 10% 20%, rgba(42,209,255,0.03), transparent 15%),
+      radial-gradient(closest-side at 80% 80%, rgba(106,92,255,0.03), transparent 12%),
+      linear-gradient(180deg, rgba(6,10,20,0.4), rgba(3,6,10,0.6));
+    mix-blend-mode:normal;
+    animation: bgShift 8s ease-in-out infinite alternate;
+  }
+  @keyframes bgShift{
+    0%{ filter: hue-rotate(0deg) saturate(1); transform:scale(1); }
+    100%{ filter: hue-rotate(10deg) saturate(1.08); transform:scale(1.02); }
+  }
+
+  .particles{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+  .particle{
+    position:absolute; width:10px; height:10px; border-radius:50%;
+    background:rgba(255,255,255,0.03); box-shadow:0 0 18px rgba(42,209,255,0.06);
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(40vh) scale(0.6); opacity:0; }
+    10%{ opacity:0.6; }
+    100%{ transform:translateY(-30vh) scale(1); opacity:0; }
+  }
+
+  .card{
+    position:relative; z-index:2;
+    width:min(920px,92vw);
+    max-width:920px;
+    padding:40px;
+    border-radius:18px;
+    background:var(--card-bg);
+    box-shadow: 0 20px 60px rgba(2,6,12,0.6);
+    backdrop-filter: blur(8px) saturate(120%);
+    border:1px solid rgba(255,255,255,0.03);
+    text-align:center;
+    transition: transform 420ms ease, opacity 420ms ease;
+  }
+
+  .title{
+    font-size: clamp(26px,5vw,52px);
+    line-height:1.02;
+    margin:6px 0 8px;
+    font-weight:800;
+  }
+
+  .subtitle{
+    font-size: clamp(16px,2.6vw,20px);
+    color:var(--red);
+    font-weight:700;
+    margin:8px 0 18px;
+  }
+
+  .power{
+    margin-top:14px;
+    font-weight:600;
+    font-size:14px;
+    opacity:0.95;
+  }
+
+  .cta-row{ margin-top:28px; display:flex; gap:18px; align-items:center; justify-content:center; }
+
+  .btn{
+    padding:12px 26px;
+    border-radius:12px;
+    font-weight:800;
+    text-decoration:none;
+    color:#041028;
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+  }
+
+  .accent-line{
+    height:8px; width:64px; margin:18px auto 0; border-radius:8px;
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+  }
+
+  .dots{ display:flex; gap:14px; }
+  .dot{
+    width:12px; height:12px; background:rgba(255,255,255,0.12); border-radius:4px;
+  }
+  .dot.active{ background:linear-gradient(180deg,var(--accent1),var(--accent2)); }
+
+  .fade-out{ opacity:0; transform:translateY(-6px) scale(0.995); pointer-events:none; }
+
+</style>
+</head>
+<body>
+
+<div class="bg-wave"></div>
+<div class="particles">
+  <div class="particle" style="left:8%; bottom:-10vh; width:12px;height:12px; animation-duration:18s;"></div>
+  <div class="particle" style="left:22%; bottom:-8vh; width:10px;height:10px; animation-duration:14s;"></div>
+  <div class="particle" style="left:40%; bottom:-12vh; width:14px;height:14px; animation-duration:20s;"></div>
+  <div class="particle" style="left:62%; bottom:-9vh; width:10px;height:10px; animation-duration:16s;"></div>
+  <div class="particle" style="left:78%; bottom:-11vh; width:12px;height:12px; animation-duration:22s;"></div>
+</div>
+
+<main class="card">
+  <div class="title">Ajmal Adam Blockchain & Technologies</div>
+  <div class="accent-line"></div>
+  <div class="subtitle">Testnet Version</div>
+  <div class="power">Powered by: Ajmal Adam Software Company</div>
+
+  <div class="cta-row">
+    <a id="enter-btn" class="btn" href="/home">Enter site</a>
+    <div class="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  try{
+    var AUTO_MS = 5000;
+    var card = document.querySelector('.card');
+    var dots = document.querySelectorAll('.dot');
+    var idx = 0;
+
+    var dotInterval = setInterval(function(){
+      dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+      idx = (idx+1)%dots.length;
+    },400);
+
+    var timer = setTimeout(function(){
+      if(card) card.classList.add('fade-out');
+      clearInterval(dotInterval);
+      setTimeout(function(){ location.href='/home'; },420);
+    },AUTO_MS);
+
+    document.getElementById('enter-btn').addEventListener('click',function(){
+      clearTimeout(timer);
+    });
+
+  }catch(err){}
+})();
+</script>
+
+</body>
+</html>

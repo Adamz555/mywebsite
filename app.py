@@ -3,13 +3,8 @@ import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# ------------------- INTRO PAGE -------------------
-@app.route('/')
-def intro():
-    return render_template('intro.html')
-
 # ------------------- MAIN SITE ROUTES -------------------
-@app.route('/home')
+@app.route('/')
 def index():
     return render_template('index.html', title="AJMAL ADAM Blockchain Research & Technologies")
 
