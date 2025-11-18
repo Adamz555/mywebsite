@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- INTRO OVERLAY: DO NOT MODIFY OTHER CONTENT -->
+<div id="site-intro-overlay" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(2,8,14,0.65);backdrop-filter:blur(6px);">
+  <div style="width:calc(100% - 40px);max-width:900px;padding:18px 22px;border-radius:14px;background:linear-gradient(180deg,#071021,#06141f);border:1px solid rgba(255,40,40,0.06);box-shadow:0 30px 80px rgba(2,8,14,0.7);display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="font-family:Segoe UI, Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;font-weight:800;font-size:28px;color:#ffffff;letter-spacing:0.4px;text-align:center;">
+      Ajmal Adam Blockchain&amp;Technologies
+    </div>
+    <div style="font-family:Segoe UI, Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;font-weight:700;font-size:16px;color:#ffb3b3;margin-top:4px;">
+      <span style="color:#b20000;font-weight:800;">Testnet Version</span>
+    </div>
+    <div style="margin-top:8px;margin-bottom:6px;color:#ffdede;font-size:14px;text-align:center;">
+      <span style="display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.03);font-weight:700;">Powered by: Ajmal Adam Software Company</span>
+    </div>
+    <div style="margin-top:6px;display:flex;gap:12px;align-items:center;">
+      <button id="intro-enter-btn" style="background:linear-gradient(135deg,#6a5cff,#2ad1ff);border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;color:#041028;">Enter site</button>
+      <div id="intro-dots" aria-hidden="true" style="font-size:22px;color:#ffdede;letter-spacing:6px;">● ● ● ● ●</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes introDots {
+  0% { transform: translateY(0); opacity:0.35; }
+  20% { transform: translateY(-4px); opacity:1; }
+  40% { transform: translateY(0); opacity:0.5; }
+  60% { transform: translateY(-2px); opacity:0.85; }
+  100% { transform: translateY(0); opacity:0.35; }
+}
+#intro-dots { animation:introDots 1s linear infinite; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
+@media (max-width:520px){
+  #site-intro-overlay div[style*='max-width:900px']{ padding:14px; }
+  #site-intro-overlay div[style*='font-size:28px']{ font-size:20px; }
+}
+</style>
+
+<script>
+(function(){
+  try{
+    var overlay = document.getElementById('site-intro-overlay');
+    var btn = document.getElementById('intro-enter-btn');
+    if(!overlay) return;
+    // Auto hide after 4s
+    var auto = setTimeout(hideOverlay, 4000);
+    function hideOverlay(){
+      if(!overlay) return;
+      overlay.style.transition = 'opacity 280ms ease, transform 280ms ease';
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'scale(0.995)';
+      setTimeout(function(){ try{ overlay.parentNode && overlay.parentNode.removeChild(overlay); }catch(e){} }, 360);
+      clearTimeout(auto);
+    }
+    // manual enter
+    btn && btn.addEventListener('click', function(){ hideOverlay(); });
+    // allow ESC to close
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hideOverlay(); });
+  }catch(e){ console && console.log && console.log('intro overlay error', e); }
+})();
+</script>
+<!-- END INTRO OVERLAY -->
+
+
+<!-- INTRO OVERLAY: DO NOT MODIFY OTHER CONTENT -->
+<div id="site-intro-overlay" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(2,8,14,0.65);backdrop-filter:blur(6px);">
+  <div style="width:calc(100% - 40px);max-width:900px;padding:18px 22px;border-radius:14px;background:linear-gradient(180deg,#071021,#06141f);border:1px solid rgba(255,40,40,0.06);box-shadow:0 30px 80px rgba(2,8,14,0.7);display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="font-family:Segoe UI, Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;font-weight:800;font-size:28px;color:#ffffff;letter-spacing:0.4px;text-align:center;">
+      Ajmal Adam Blockchain&amp;Technologies
+    </div>
+    <div style="font-family:Segoe UI, Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;font-weight:700;font-size:16px;color:#ffb3b3;margin-top:4px;">
+      <span style="color:#b20000;font-weight:800;">Testnet Version</span>
+    </div>
+    <div style="margin-top:8px;margin-bottom:6px;color:#ffdede;font-size:14px;text-align:center;">
+      <span style="display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.03);font-weight:700;">Powered by: Ajmal Adam Software Company</span>
+    </div>
+    <div style="margin-top:6px;display:flex;gap:12px;align-items:center;">
+      <button id="intro-enter-btn" style="background:linear-gradient(135deg,#6a5cff,#2ad1ff);border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;color:#041028;">Enter site</button>
+      <div id="intro-dots" aria-hidden="true" style="font-size:22px;color:#ffdede;letter-spacing:6px;">● ● ● ● ●</div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes introDots {
+  0% { transform: translateY(0); opacity:0.35; }
+  20% { transform: translateY(-4px); opacity:1; }
+  40% { transform: translateY(0); opacity:0.5; }
+  60% { transform: translateY(-2px); opacity:0.85; }
+  100% { transform: translateY(0); opacity:0.35; }
+}
+#intro-dots { animation:introDots 1s linear infinite; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
+@media (max-width:520px){
+  #site-intro-overlay div[style*='max-width:900px']{ padding:14px; }
+  #site-intro-overlay div[style*='font-size:28px']{ font-size:20px; }
+}
+</style>
+
+<script>
+(function(){
+  try{
+    var overlay = document.getElementById('site-intro-overlay');
+    var btn = document.getElementById('intro-enter-btn');
+    if(!overlay) return;
+    // Auto hide after 4s
+    var auto = setTimeout(hideOverlay, 4000);
+    function hideOverlay(){
+      if(!overlay) return;
+      overlay.style.transition = 'opacity 280ms ease, transform 280ms ease';
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'scale(0.995)';
+      setTimeout(function(){ try{ overlay.parentNode && overlay.parentNode.removeChild(overlay); }catch(e){} }, 360);
+      clearTimeout(auto);
+    }
+    // manual enter
+    btn && btn.addEventListener('click', function(){ hideOverlay(); });
+    // allow ESC to close
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hideOverlay(); });
+  }catch(e){ console && console.log && console.log('intro overlay error', e); }
+})();
+</script>
+<!-- END INTRO OVERLAY -->
+
+
+<!-- Labs pill shown at top of content area -->
+<div class="container nav-pill-row" style="max-width:980px; margin:8px auto 0; padding:0 12px;">
+  <div class="nav-links-row">
+    <a class="btn btn-ghost" href="{{ url_for('labs') }}">🧪 Labs</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Explore Blockchain & Smart Contracts</h1>
+    <p class="hero-subtitle">We build knowledge around smart contracts, security audits, and research that bridges blockchain with space innovation.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="{{ url_for('blockchain_basic') }}">Blockchain Basic</a>
+      <a class="btn btn-ghost" href="javascript:void(0)" onclick="showReviewMessage()">Review</a>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEW MESSAGE BOX (appears when Review button clicked, auto hides after 4s) -->
+<div id="review-box" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; width:calc(100% - 40px); max-width:820px; pointer-events:none;">
+  <div style="pointer-events:auto; margin:0 auto; background:linear-gradient(180deg, rgba(90,8,8,0.98), rgba(130,12,12,0.98)); border:1px solid rgba(255,70,70,0.12); padding:14px 18px; border-radius:12px; box-shadow:0 18px 40px rgba(0,0,0,0.55); color:#ffdede; text-align:center; display:flex; align-items:center; justify-content:center; gap:12px; white-space:nowrap;">
+    <div style="font-family:'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial; font-weight:800; font-size:20px; color:#ffd6d6; text-shadow:0 2px 6px rgba(0,0,0,0.6);">
+      Review System is Deploying Shortly
+    </div>
+    <div id="review-dots" aria-hidden="true" style="display:flex; gap:8px; align-items:center;">
+      <span class="r-dot"></span><span class="r-dot"></span><span class="r-dot"></span><span class="r-dot"></span><span class="r-dot"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+.r-dot{width:12px;height:12px;background:rgba(255,210,210,0.95);border-radius:3px;display:inline-block;opacity:0.25;box-shadow:0 3px 8px rgba(0,0,0,0.45);}
+@keyframes rPulse{0%{opacity:0.25;transform:translateY(0);}30%{opacity:1;transform:translateY(-6px);}60%{opacity:0.6;transform:translateY(0);}100%{opacity:0.25;transform:translateY(0);}}
+.r-dot:nth-child(1){animation:rPulse 1s infinite 0s;}
+.r-dot:nth-child(2){animation:rPulse 1s infinite 0.12s;}
+.r-dot:nth-child(3){animation:rPulse 1s infinite 0.24s;}
+.r-dot:nth-child(4){animation:rPulse 1s infinite 0.36s;}
+.r-dot:nth-child(5){animation:rPulse 1s infinite 0.48s;}
+</style>
+
+<div class="home-cards" id="cards-root">
+  <!-- Four new buttons as requested -->
+  <div class="card" style="cursor:pointer" onclick="showDetail('ai')">
+    <h2>Ai Agents</h2>
+    <p>Autonomous on-chain/off-chain agents that monitor, act and optimise smart contract systems.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('multisign')">
+    <h2>Multisign</h2>
+    <p>Multi-signature wallets and workflows for safer treasury and admin operations.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('dao')">
+    <h2>DAO</h2>
+    <p>Decentralized Autonomous Organizations — governance, treasury, and community coordination.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('future')">
+    <h2>Future of Blockchain Technology</h2>
+    <p>Trends: Ai integration, ZK privacy, cross-chain, tokenization, and space-grade deployments.</p>
+  </div>
+</div>
+
+<!-- Details panels (hidden by default) -->
+<div id="detail-root" style="margin-top:18px; display:none;">
+  <div class="card" id="detail-ai" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Ai Agents — Autonomous Intelligent Agents</h2>
+    <p style="color:var(--muted);">Ai Agents are software entities that observe data, make decisions, and act — optionally interacting with blockchains or smart contracts. They can automate monitoring, on-chain operations, trading strategies, security scanning and governance helpers.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Key uses</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Real-time on-chain monitoring and anomaly detection.</li>
+      <li>Autonomous rebalancing, arbitrage and DeFi optimisation.</li>
+      <li>Automated vulnerability triage and alerting for auditors.</li>
+      <li>Agent-assisted DAO proposal evaluation and recommendation.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Design & risks</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Keep transparent decision logs on-chain or via signed attestations.</li>
+      <li>Protect agent keys; use threshold keys or multisig for critical actions.</li>
+      <li>Rate-limit and test agent policies to avoid costly on-chain mistakes.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-multisign" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Multisign — Multi-signature Security</h2>
+    <p style="color:var(--muted);">Multisig requires multiple independent signatures to authorize transactions. It is widely used to secure treasuries, protect admin privileges, and ensure collective control over funds.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Common patterns</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>m-of-n wallets (example: 2/3, 3/5) for team custody.</li>
+      <li>Multisig with timelocks and on-chain guardians for safer upgrades.</li>
+      <li>DAOs integrating multisig for delegated execution of proposals.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Best practices</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Use tested multisig contracts (OpenZeppelin/Gnosis Safe).</li>
+      <li>Distribute keys across people and devices; avoid single points of failure.</li>
+      <li>Combine with monitoring, alerts and emergency recovery plans.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-dao" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>DAO — Decentralized Autonomous Organization</h2>
+    <p style="color:var(--muted);">A DAO is an on-chain governed collective where rules and treasury actions are enforced by smart contracts. Members propose and vote; successful proposals execute automatically when conditions are met.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Core components</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Token-based voting or reputation systems for decision power.</li>
+      <li>Proposal lifecycle (create → discuss → vote → execute).</li>
+      <li>Treasury contracts, multisig safes, and timelocks for finance control.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Operational notes</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Design clear proposal formats and quorum rules.</li>
+      <li>Use on-chain and off-chain governance tooling (forum, snapshot, on-chain execution).</li>
+      <li>Audit governance contracts and treasury flows thoroughly.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-future" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Future of Blockchain Technology</h2>
+    <p style="color:var(--muted);">The near future blends privacy (ZK), Ai, cross-chain interoperability, tokenization of real-world assets, and niche domains like space-grade decentralized systems — producing richer, privacy-preserving and highly interconnected infrastructures.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Major trends</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Ai + blockchain: autonomous agents, predictive contracts, on-chain ML pointers.</li>
+      <li>Zero-knowledge proofs for private computation and confidential state.</li>
+      <li>Seamless cross-chain execution and universal liquidity layers.</li>
+      <li>Tokenization and regulated on-chain RWAs (real-world assets).</li>
+      <li>Space-oriented deployments: low-bandwidth anchoring, satellite relays, provenance for telemetry.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">How to prepare</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Learn ZK basics, cross-chain primitives and secure oracle design.</li>
+      <li>Adopt modular, audited toolchains and privacy-first patterns.</li>
+      <li>Design for resilience and intermittent connectivity in novel domains (eg. space).</li>
+    </ul>
+  </div>
+</div>
+
+<div class="latest">
+  <h2>Latest</h2>
+  <p class="muted">Updates and short notes will appear here.</p>
+</div>
+
+<!-- small JS to toggle -->
+<script>
+  function showDetail(id){
+    // hide cards, show detail-root and the requested panel
+    document.getElementById('cards-root').style.display = 'none';
+    var root = document.getElementById('detail-root');
+    root.style.display = 'block';
+    ['ai','multisign','dao','future'].forEach(function(k){
+      var el = document.getElementById('detail-' + k);
+      if(!el) return;
+      el.style.display = (k === id) ? 'block' : 'none';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function hideDetail(){
+    document.getElementById('detail-root').style.display = 'none';
+    document.getElementById('cards-root').style.display = 'grid';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* show review message box, then hide after 4 seconds */
+  function showReviewMessage(){
+    try{
+      var box = document.getElementById('review-box');
+      if(!box) return;
+      box.style.display = 'block';
+      void box.offsetWidth;
+      setTimeout(function(){
+        box.style.display = 'none';
+      }, 4000);
+    }catch(e){
+      console && console.log && console.log('review message error', e);
+    }
+  }
+</script>
+
+{% endblock %}

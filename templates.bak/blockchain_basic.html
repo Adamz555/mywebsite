@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <h2 style="font-size:20px; margin:0 0 10px;">Blockchain Basic</h2>
+
+    <h3 style="margin-top:8px; font-size:15px;">What is a blockchain?</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      A blockchain is a distributed, append-only ledger that records transactions in linked blocks. Each block contains a set of transactions, a timestamp, and a cryptographic hash of the previous block.
+      This chaining and the use of cryptographic proofs make it difficult to alter historical records without detection. Nodes in the network maintain copies of the ledger and use consensus algorithms to agree on its state.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">Key components</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      <strong>Blocks:</strong> containers of transactions and metadata. <br>
+      <strong>Cryptographic hashing:</strong> links blocks and provides tamper-evidence. <br>
+      <strong>Consensus:</strong> protocols (Proof-of-Work, Proof-of-Stake, etc.) that let distributed nodes agree on state. <br>
+      <strong>Network:</strong> peer-to-peer communication between nodes that relay transactions and blocks.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">How transactions work (simple flow)</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      1. A user signs and broadcasts a transaction to the network. <br>
+      2. Nodes validate the transaction (signatures, nonces, balances). <br>
+      3. Valid transactions are collected into a candidate block. <br>
+      4. Consensus determines which block is appended to the ledger. <br>
+      5. The new block is propagated; nodes update their local state.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">Smart contracts — programmable on-chain logic</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      Smart contracts are programs stored on-chain that execute when predetermined conditions are met. They allow developers to create decentralized applications that automate asset transfers,
+      manage tokens, or implement complex logic without a central intermediary. Security, upgradability, and gas/resource limits are important considerations when designing smart contracts.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">Use cases</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      Cryptocurrencies and payments, decentralized finance (lending, AMMs), supply-chain provenance, identity and verifiable credentials, tokenized assets, governance systems, and secure record-keeping are common applications.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">Common risks and best practices</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      Security bugs in smart contracts, private key compromise, consensus attacks, and misconfigured oracles are common risks. Best practices: use audited libraries, keep contracts simple, write tests and fuzzers,
+      use automated static analysis, and design upgrade/escape mechanisms when necessary.
+    </p>
+
+    <h3 style="margin-top:8px; font-size:15px;">Getting started (practical steps)</h3>
+    <p style="font-size:13px; line-height:1.6;">
+      Learn the basics of cryptography and distributed systems, set up a local development environment (Remix, Foundry, Hardhat), write simple contracts, test and deploy to a testnet, and study audits and security reports from reputable sources.
+    </p>
+
+    <p style="margin-top:12px; font-size:13px; line-height:1.6;">
+      This page provides a compact, practical introduction to blockchain fundamentals. If you want, I can add step-by-step tutorials (tooling setup, a "Hello World" smart contract, testing and simple audit checks) on this same page.
+    </p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 style="color:#2ad1ff; margin:0 0 6px;">Blockchain Virtual Machine &amp; Concepts — Telemetry Anchoring</h2>
+        <p style="color:var(--muted); margin:0 0 8px; font-size:13px;">IPFS + on-chain CID anchoring PoC and verification notes (Proof of Concept).</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 12px;">Ajmal</a>
+        <a href="{{ url_for('research') }}" class="subnav mini-btn" style="padding:8px 12px;">Previous</a>
+      </div>
+    </div>
+
+    <hr style="border:none; height:12px; background:transparent;" />
+
+    <h3 style="color:#6a5cff; margin-top:8px;">Flow summary</h3>
+    <ol style="color:var(--muted); font-size:13px;">
+      <li>Upload telemetry snapshot to IPFS and obtain CID.</li>
+      <li>Submit CID and timestamp to on-chain anchor contract.</li>
+      <li>Auditors fetch CID from IPFS and verify snapshot integrity and provenance.</li>
+    </ol>
+
+    <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(42,209,255,0.06);">
+      <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity Anchor PoC (Proof of Concept)</div>
+      <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; color:#2ad1ff;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TelemetryAnchor {
+    struct Entry { string cid; uint256 ts; address submitter; }
+    Entry[] public entries;
+
+    event Anchored(uint indexed id, string cid, uint256 ts, address indexed submitter);
+
+    function anchorCID(string calldata cid) external {
+        entries.push( Entry({ cid: cid, ts: block.timestamp, submitter: msg.sender }) );
+        emit Anchored(entries.length-1, cid, block.timestamp, msg.sender);
+    }
+
+    function getEntry(uint id) external view returns(string memory, uint256, address) {
+        Entry storage e = entries[id];
+        return (e.cid, e.ts, e.submitter);
+    }
+}
+      </pre>
+      <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+        <strong style="color:#2ad1ff;">Notes:</strong> Use signed off-chain attestations and multi-anchor strategies for stronger provenance.
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

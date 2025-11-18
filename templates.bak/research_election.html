@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div>
+        <h2 style="color:#6a5cff; margin:0 0 6px;">Decentralized Election Voting — Vote Hash Anchoring</h2>
+        <p style="color:var(--muted); margin:0 0 8px; font-size:13px;">Minimal privacy-preserving voting flow and PoC (Proof of Concept).</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 12px;">Ajmal</a>
+        <a href="{{ url_for('research') }}" class="subnav mini-btn" style="padding:8px 12px;">Previous</a>
+      </div>
+    </div>
+
+    <hr style="border:none; height:12px; background:transparent;" />
+
+    <h3 style="color:#2ad1ff; margin-top:8px;">Design summary</h3>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Admin registers eligible voter addresses.</li>
+      <li>Voter computes salted vote hash off-chain and submits only the hash.</li>
+      <li>Contract stores hash and marks address as voted; plaintext never stored.</li>
+      <li>Organizer reveals payloads later for off-chain verification against stored hashes.</li>
+    </ul>
+
+    <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(106,92,255,0.06);">
+      <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
+      <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; color:#6a5cff;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VoteHashAnchor {
+    address public admin;
+    mapping(address => bool) public registered;
+    mapping(bytes32 => bool) public voteSeen;
+    mapping(address => bool) public hasVoted;
+    bool public closed;
+
+    constructor() { admin = msg.sender; }
+
+    modifier onlyAdmin { require(msg.sender == admin, "admin only"); _; }
+    modifier open { require(!closed, "poll closed"); _; }
+
+    function registerVoter(address v) external onlyAdmin { registered[v] = true; }
+    function closePoll() external onlyAdmin { closed = true; }
+
+    // submit hash of (pollId || voterSalt || choice)
+    function submitVote(bytes32 h) external open {
+        require(registered[msg.sender], "not registered");
+        require(!hasVoted[msg.sender], "already voted");
+        require(!voteSeen[h], "duplicate vote");
+        voteSeen[h] = true;
+        hasVoted[msg.sender] = true;
+    }
+}
+      </pre>
+      <div style="font-size:13px; color:var(--muted); margin-top:8px;">
+        <strong style="color:#6a5cff;">Note:</strong> For production, consider zk-proofs or blind signatures and secure off-chain salt management.
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

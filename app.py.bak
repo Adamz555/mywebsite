@@ -3,8 +3,12 @@ import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# routes (main site)
 @app.route('/')
+def intro():
+    return render_template('intro.html')
+
+# routes (main site)
+@app.route('/home')
 def index():
     return render_template('index.html', title="AJMAL ADAM Blockchain Research & Technologies")
 
@@ -34,9 +38,9 @@ def labs():
 
 # register reviews API
 try:
+    pass
 except Exception as e:
     print("reviews_api init error:", e)
 
 if __name__ == '__main__':
-    # development server (bind to all local interfaces)
     app.run(host='0.0.0.0', port=8080)

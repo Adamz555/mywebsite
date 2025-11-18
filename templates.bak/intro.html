@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro | Ajmal Adam Blockchain & Technologies</title>
+
+<style>
+body {
+  margin:0;
+  background:#02060a;
+  overflow:hidden;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Background animation */
+#bg-anim {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+}
+
+#intro-card {
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:calc(100% - 48px);
+  max-width:900px;
+  padding:28px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  box-shadow:0 24px 80px rgba(2,8,14,0.7);
+  text-align:center;
+  z-index:10;
+  animation:cardPulse 6s ease-in-out infinite;
+}
+
+@keyframes cardPulse {
+  0% { transform:translate(-50%,-50%) scale(1); }
+  50% { transform:translate(-50%,-50%) scale(1.01); }
+  100% { transform:translate(-50%,-50%) scale(1); }
+}
+
+.title {
+  font-size:42px;
+  font-weight:900;
+  color:white;
+  letter-spacing:1px;
+}
+
+.testnet {
+  display:inline-block;
+  margin-top:12px;
+  background:linear-gradient(90deg,#330000,#6b0000);
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,40,40,0.16);
+  color:#ffcece;
+  font-weight:800;
+  font-size:14px;
+}
+
+.powered {
+  margin-top:18px;
+  color:#ffdede;
+  font-size:14px;
+  font-weight:700;
+}
+
+.enter-btn {
+  margin-top:22px;
+  padding:12px 22px;
+  border-radius:10px;
+  border:none;
+  font-weight:800;
+  background:linear-gradient(135deg,#6a5cff,#2ad1ff);
+  color:#041028;
+  cursor:pointer;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background Animated Gradient -->
+<svg id="bg-anim" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f1724"/>
+      <stop offset="50%" stop-color="#071230"/>
+      <stop offset="100%" stop-color="#05111a"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="40"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g1)"></rect>
+
+  <g style="mix-blend-mode:screen; opacity:0.8; filter:url(#blur)">
+    <circle cx="20%" cy="30%" r="240" fill="#6a5cff">
+      <animate attributeName="cx" dur="10s" values="18%;22%;18%" repeatCount="indefinite"/>
+      <animate attributeName="cy" dur="12s" values="26%;34%;26%" repeatCount="indefinite"/>
+    </circle>
+
+    <circle cx="80%" cy="60%" r="260" fill="#2ad1ff">
+      <animate attributeName="cx" dur="11s" values="78%;84%;78%" repeatCount="indefinite"/>
+      <animate attributeName="cy" dur="13s" values="58%;66%;58%" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
+
+<!-- MAIN CARD -->
+<div id="intro-card">
+  <div class="title">Ajmal Adam Blockchain & Technologies</div>
+  <div class="testnet">Testnet Version</div>
+  <div class="powered">Powered by: Ajmal Adam Software Company</div>
+
+  <button class="enter-btn" onclick="enterSite()">Enter Website</button>
+</div>
+
+<script>
+function enterSite(){
+  window.location.href = "/";
+}
+
+setTimeout(()=>{
+  enterSite();
+}, 4000);
+</script>
+
+</body>
+</html>

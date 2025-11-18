@@ -1,0 +1,129 @@
+<!-- Review modal fragment (paste into templates; index.html's Review button should have id="openReview") -->
+<div id="reviewModal" class="review-modal-backdrop" style="display:none;">
+  <div class="review-modal">
+    <h3>Write Your Review</h3>
+
+    <div id="nameBlock">
+      <label style="color:var(--muted); font-size:13px;">Type your name</label>
+      <input id="revName" class="input" placeholder="Enter your name">
+    </div>
+
+    <label style="color:var(--muted); font-size:13px; margin-top:8px;">Add your review</label>
+    <textarea id="revText" class="textarea" placeholder="Write something..."></textarea>
+
+    <div style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end;">
+      <button id="submitReview" class="small-btn">Submit</button>
+      <button id="closeReview" class="small-btn">Close</button>
+    </div>
+
+    <h4 style="margin-top:15px; color:#6a5cff;">Public Reviews</h4>
+    <div id="reviewList" style="max-height:220px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<script>
+/* Review fragment JS - expects an API at /api/reviews and a Review button with id="openReview" */
+(function(){
+  const modal = document.getElementById("reviewModal");
+  const openBtn = document.getElementById("openReview");
+  const closeBtn = document.getElementById("closeReview");
+  const submitBtn = document.getElementById("submitReview");
+  const nameBlock = document.getElementById("nameBlock");
+  const nameInput = document.getElementById("revName");
+  const textInput = document.getElementById("revText");
+  const reviewsList = document.getElementById("reviewList");
+
+  function showModal(){
+    const saved = localStorage.getItem('visitor_name');
+    if(saved){ nameBlock.style.display='none'; } else { nameBlock.style.display='block'; nameInput.value=''; }
+    textInput.value = '';
+    modal.style.display = 'flex';
+    loadReviews();
+  }
+
+  function hideModal(){ modal.style.display = 'none'; }
+
+  async function loadReviews(){
+    reviewsList.innerHTML = '<div style="color:var(--muted);">Loading...</div>';
+    try{
+      const res = await fetch('/api/reviews');
+      const list = await res.json();
+      if(!Array.isArray(list) || list.length===0){
+        reviewsList.innerHTML = '<div style="color:var(--muted);">No reviews yet.</div>';
+        return;
+      }
+      reviewsList.innerHTML = '';
+      list.slice().reverse().forEach(r=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'review-list-item';
+        const meta = document.createElement('div');
+        meta.className = 'review-meta';
+        const date = new Date((r.ts||0)*1000);
+        meta.textContent = r.name + ' — ' + (isNaN(date) ? '' : date.toLocaleString());
+        const txt = document.createElement('div');
+        txt.textContent = r.text;
+        wrap.appendChild(meta);
+        wrap.appendChild(txt);
+        const myName = localStorage.getItem('visitor_name') || '';
+        if(myName && myName === r.name){
+          const del = document.createElement('button');
+          del.className = 'small-btn';
+          del.style.marginTop = '8px';
+          del.textContent = 'Delete';
+          del.onclick = async function(){
+            if(!confirm('Delete this review?')) return;
+            try{
+              const resp = await fetch('/api/reviews/'+r.id, {
+                method: 'DELETE',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({name: myName})
+              });
+              if(resp.ok) loadReviews(); else {
+                const err = await resp.json(); alert(err.error || 'Delete failed');
+              }
+            }catch(e){ alert('Network error'); }
+          };
+          wrap.appendChild(del);
+        }
+        reviewsList.appendChild(wrap);
+      });
+    }catch(e){
+      reviewsList.innerHTML = '<div style="color:var(--muted);">Failed to load reviews.</div>';
+    }
+  }
+
+  async function submitReview(){
+    let name = localStorage.getItem('visitor_name') || '';
+    if(!name){
+      name = nameInput.value.trim();
+      if(!name){ alert('Enter name'); return; }
+      localStorage.setItem('visitor_name', name);
+      nameBlock.style.display = 'none';
+    }
+    const text = textInput.value.trim();
+    if(!text){ alert('Write review'); return; }
+    try{
+      const resp = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({name: name, text: text})
+      });
+      if(resp.status === 201){
+        textInput.value = '';
+        loadReviews();
+      } else {
+        const err = await resp.json();
+        alert(err.error || 'Submit failed');
+      }
+    }catch(e){
+      alert('Network error');
+    }
+  }
+
+  if(openBtn) openBtn.addEventListener('click', showModal);
+  if(closeBtn) closeBtn.addEventListener('click', hideModal);
+  if(submitBtn) submitBtn.addEventListener('click', submitReview);
+  // close modal when clicking outside content
+  modal.addEventListener('click', function(e){ if(e.target===modal) hideModal(); });
+})();
+</script>

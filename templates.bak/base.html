@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ title or "AJMAL ADAM Blockchain Research & Technologies" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body style="background: linear-gradient(180deg, #0b1a2a 0%, #04070c 100%); background-attachment: fixed; color: #e0e6ed; margin: 0; min-height: 100vh;">
+
+<header class="nav">
+  <div class="container nav-inner">
+    <div class="brand-block">
+      <div class="brand-left">
+        <div class="brand-badge" aria-hidden="true"></div>
+        <div class="brand-text">
+          <a href="{{ url_for('index') }}" style="text-decoration:none; color:inherit;">
+            <div class="brand-line">AJMAL ADAM</div>
+            <div class="brand-line small">Blockchain Research & Technologies</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a class="nav-link" href="{{ url_for('about') }}">About Developer</a>
+      <a class="nav-link" href="{{ url_for('research') }}">Research Files</a>
+      <a class="nav-link" href="{{ url_for('knowledge') }}">History of Blockchain</a>
+      <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer" style="font-size:11px;">
+  © {{ 2025 }} Ajmal Adam Software Company. All rights reserved.
+</footer>
+
+</body>
+</html>

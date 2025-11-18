@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Labs pill shown at top of content area -->
+<div class="container nav-pill-row" style="max-width:980px; margin:8px auto 0; padding:0 12px;">
+  <div class="nav-links-row">
+    <a class="btn btn-ghost" href="{{ url_for('labs') }}">🧪 Labs</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Explore Blockchain & Smart Contracts</h1>
+    <p class="hero-subtitle">We build knowledge around smart contracts, security audits, and research that bridges blockchain with space innovation.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="{{ url_for('blockchain_basic') }}">Blockchain Basic</a>
+      <a class="btn btn-ghost" href="{{ url_for('labs') }}">Review</a>
+    </div>
+  </div>
+</section>
+
+<div class="home-cards" id="cards-root">
+  <!-- Four new buttons as requested -->
+  <div class="card" style="cursor:pointer" onclick="showDetail('ai')">
+    <h2>Ai Agents</h2>
+    <p>Autonomous on-chain/off-chain agents that monitor, act and optimise smart contract systems.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('multisign')">
+    <h2>Multisign</h2>
+    <p>Multi-signature wallets and workflows for safer treasury and admin operations.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('dao')">
+    <h2>DAO</h2>
+    <p>Decentralized Autonomous Organizations — governance, treasury, and community coordination.</p>
+  </div>
+
+  <div class="card" style="cursor:pointer" onclick="showDetail('future')">
+    <h2>Future of Blockchain Technology</h2>
+    <p>Trends: Ai integration, ZK privacy, cross-chain, tokenization, and space-grade deployments.</p>
+  </div>
+</div>
+
+<!-- Details panels (hidden by default) -->
+<div id="detail-root" style="margin-top:18px; display:none;">
+  <div class="card" id="detail-ai" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Ai Agents — Autonomous Intelligent Agents</h2>
+    <p style="color:var(--muted);">Ai Agents are software entities that observe data, make decisions, and act — optionally interacting with blockchains or smart contracts. They can automate monitoring, on-chain operations, trading strategies, security scanning and governance helpers.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Key uses</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Real-time on-chain monitoring and anomaly detection.</li>
+      <li>Autonomous rebalancing, arbitrage and DeFi optimisation.</li>
+      <li>Automated vulnerability triage and alerting for auditors.</li>
+      <li>Agent-assisted DAO proposal evaluation and recommendation.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Design & risks</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Keep transparent decision logs on-chain or via signed attestations.</li>
+      <li>Protect agent keys; use threshold keys or multisig for critical actions.</li>
+      <li>Rate-limit and test agent policies to avoid costly on-chain mistakes.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-multisign" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Multisign — Multi-signature Security</h2>
+    <p style="color:var(--muted);">Multisig requires multiple independent signatures to authorize transactions. It is widely used to secure treasuries, protect admin privileges, and ensure collective control over funds.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Common patterns</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>m-of-n wallets (example: 2/3, 3/5) for team custody.</li>
+      <li>Multisig with timelocks and on-chain guardians for safer upgrades.</li>
+      <li>DAOs integrating multisig for delegated execution of proposals.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Best practices</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Use tested multisig contracts (OpenZeppelin/Gnosis Safe).</li>
+      <li>Distribute keys across people and devices; avoid single points of failure.</li>
+      <li>Combine with monitoring, alerts and emergency recovery plans.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-dao" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>DAO — Decentralized Autonomous Organization</h2>
+    <p style="color:var(--muted);">A DAO is an on-chain governed collective where rules and treasury actions are enforced by smart contracts. Members propose and vote; successful proposals execute automatically when conditions are met.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Core components</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Token-based voting or reputation systems for decision power.</li>
+      <li>Proposal lifecycle (create → discuss → vote → execute).</li>
+      <li>Treasury contracts, multisig safes, and timelocks for finance control.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">Operational notes</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Design clear proposal formats and quorum rules.</li>
+      <li>Use on-chain and off-chain governance tooling (forum, snapshot, on-chain execution).</li>
+      <li>Audit governance contracts and treasury flows thoroughly.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="detail-future" style="display:none;">
+    <a href="javascript:void(0)" onclick="hideDetail()" style="float:right; color:var(--muted); text-decoration:none;">Back</a>
+    <h2>Future of Blockchain Technology</h2>
+    <p style="color:var(--muted);">The near future blends privacy (ZK), Ai, cross-chain interoperability, tokenization of real-world assets, and niche domains like space-grade decentralized systems — producing richer, privacy-preserving and highly interconnected infrastructures.</p>
+    <h4 style="color:#6a5cff; margin-top:8px;">Major trends</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Ai + blockchain: autonomous agents, predictive contracts, on-chain ML pointers.</li>
+      <li>Zero-knowledge proofs for private computation and confidential state.</li>
+      <li>Seamless cross-chain execution and universal liquidity layers.</li>
+      <li>Tokenization and regulated on-chain RWAs (real-world assets).</li>
+      <li>Space-oriented deployments: low-bandwidth anchoring, satellite relays, provenance for telemetry.</li>
+    </ul>
+    <h4 style="color:#2ad1ff; margin-top:8px;">How to prepare</h4>
+    <ul style="color:var(--muted); font-size:13px;">
+      <li>Learn ZK basics, cross-chain primitives and secure oracle design.</li>
+      <li>Adopt modular, audited toolchains and privacy-first patterns.</li>
+      <li>Design for resilience and intermittent connectivity in novel domains (eg. space).</li>
+    </ul>
+  </div>
+</div>
+
+<div class="latest">
+  <h2>Latest</h2>
+  <p class="muted">Updates and short notes will appear here.</p>
+</div>
+
+<!-- small JS to toggle -->
+<script>
+  function showDetail(id){
+    // hide cards, show detail-root and the requested panel
+    document.getElementById('cards-root').style.display = 'none';
+    var root = document.getElementById('detail-root');
+    root.style.display = 'block';
+    ['ai','multisign','dao','future'].forEach(function(k){
+      var el = document.getElementById('detail-' + k);
+      if(!el) return;
+      el.style.display = (k === id) ? 'block' : 'none';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function hideDetail(){
+    document.getElementById('detail-root').style.display = 'none';
+    document.getElementById('cards-root').style.display = 'grid';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+{% endblock %}
+<!-- Review Modal -->
+<div id="review-modal" 
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65);
+     backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999;">
+
+  <div style="background:#151b23; padding:20px; width:90%; max-width:360px;
+              border-radius:12px; border:1px solid #202733;">
+
+    <h3 style="margin:0 0 10px;">Write Review</h3>
+
+    <div id="review-name-note" style="font-size:12px; color:#9aa0a6; margin-bottom:6px;"></div>
+
+    <input id="review-name" type="text"
+           style="width:100%; padding:8px; background:#0f141a; border:1px solid #202733;
+                  color:#e5e7eb; border-radius:8px; margin-bottom:10px;" />
+
+    <textarea id="review-text" rows="4"
+              style="width:100%; padding:8px; background:#0f141a; border:1px solid #202733;
+                     color:#e5e7eb; border-radius:8px;"></textarea>
+
+    <button onclick="submitReview()"
+            style="margin-top:12px; width:100%; padding:10px;
+            background:linear-gradient(135deg,#6a5cff,#2ad1ff); border:none;
+            border-radius:8px; color:#041028; font-weight:700;">
+      Submit
+    </button>
+
+    <button onclick="closeReview()"
+            style="margin-top:10px; width:100%; padding:8px; background:none;
+            border:1px solid #202733; border-radius:8px; color:#e5e7eb;">
+      Close
+    </button>
+
+    <div id="review-list" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<script>
+function openReview(){ loadName(); fetchReviews(); document.getElementById('review-modal').style.display='flex'; }
+function closeReview(){ document.getElementById('review-modal').style.display='none'; }
+
+const KEY='aj_name_v1';
+const API='/api/reviews';
+
+function loadName(){
+  const n = localStorage.getItem(KEY);
+  const i = document.getElementById('review-name');
+  const note = document.getElementById('review-name-note');
+  if(n){ i.value=n; i.disabled=true; note.innerText="Name saved: "+n; }
+  else { i.value=""; i.disabled=false; note.innerText="You can enter name only once."; }
+}
+
+async function submitReview(){
+  let name=localStorage.getItem(KEY);
+  const i=document.getElementById('review-name');
+  if(!name){
+    if(!i.value.trim()){ alert("Type your name"); return; }
+    localStorage.setItem(KEY, i.value.trim());
+    name=i.value.trim();
+    loadName();
+  }
+
+  const text=document.getElementById('review-text').value.trim();
+  if(!text){ alert("Write review"); return; }
+
+  try{
+    await fetch(API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:name,text:text})
+    });
+  }catch(e){
+    console.error(e);
+  }
+  document.getElementById('review-text').value='';
+  fetchReviews();
+}
+
+async function fetchReviews(){
+  try{
+    const r=await fetch(API);
+    if(!r.ok) return;
+    const j=await r.json();
+    render(j.reviews||[]);
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function render(list){
+  const root=document.getElementById('review-list');
+  root.innerHTML='';
+  if(!list.length){
+    root.innerHTML='<div style="color:#9aa0a6;font-size:13px;">No reviews yet.</div>';
+    return;
+  }
+  list.forEach(r=>{
+    const box=document.createElement('div');
+    box.style.padding='10px';
+    box.style.borderRadius='8px';
+    box.style.background='rgba(255,255,255,0.02)';
+    box.style.border='1px solid rgba(255,255,255,0.03)';
+    box.style.marginBottom='8px';
+
+    const top=document.createElement('div');
+    top.style.display='flex';
+    top.style.justifyContent='space-between';
+    top.style.alignItems='center';
+
+    const left=document.createElement('div');
+    const nameEl=document.createElement('div');
+    nameEl.style.fontWeight='700';
+    nameEl.style.color='#6a5cff';
+    nameEl.innerText=r.name;
+    const timeEl=document.createElement('div');
+    timeEl.style.fontSize='12px';
+    timeEl.style.color='#9aa0a6';
+    timeEl.innerText=new Date(r.ts).toLocaleString();
+    left.appendChild(nameEl);
+    left.appendChild(timeEl);
+
+    const del=document.createElement('button');
+    del.innerText='Delete';
+    del.style.background='transparent';
+    del.style.border='1px solid rgba(255,255,255,0.06)';
+    del.style.color='#e5e7eb';
+    del.style.padding='6px 8px';
+    del.style.borderRadius='6px';
+    del.style.cursor='pointer';
+    del.addEventListener('click', function(){
+      if(!confirm('Delete this review?')) return;
+      deleteReview(r.id);
+    });
+
+    top.appendChild(left);
+    top.appendChild(del);
+
+    const body=document.createElement('div');
+    body.style.marginTop='6px';
+    body.style.color='#9aa0a6';
+    body.innerText=r.text;
+
+    box.appendChild(top);
+    box.appendChild(body);
+    root.appendChild(box);
+  });
+}
+
+async function deleteReview(id){
+  try{
+    await fetch(API+'/'+encodeURIComponent(id), { method:'DELETE' });
+    fetchReviews();
+  }catch(e){
+    console.error(e);
+  }
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    const m=document.getElementById('review-modal');
+    if(m && m.style.display==='flex') m.style.display='none';
+  }
+});
+</script>
+<!-- Review Modal -->
+<div id="review-modal" 
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65);
+     backdrop-filter:blur(4px); justify-content:center; align-items:center; z-index:9999;">
+
+  <div style="background:#151b23; padding:20px; width:90%; max-width:360px;
+              border-radius:12px; border:1px solid #202733;">
+
+    <h3 style="margin:0 0 10px;">Write Review</h3>
+
+    <div id="review-name-note" style="font-size:12px; color:#9aa0a6; margin-bottom:6px;"></div>
+
+    <input id="review-name" type="text"
+           style="width:100%; padding:8px; background:#0f141a; border:1px solid #202733;
+                  color:#e5e7eb; border-radius:8px; margin-bottom:10px;" />
+
+    <textarea id="review-text" rows="4"
+              style="width:100%; padding:8px; background:#0f141a; border:1px solid #202733;
+                     color:#e5e7eb; border-radius:8px;"></textarea>
+
+    <button onclick="submitReview()"
+            style="margin-top:12px; width:100%; padding:10px;
+            background:linear-gradient(135deg,#6a5cff,#2ad1ff); border:none;
+            border-radius:8px; color:#041028; font-weight:700;">
+      Submit
+    </button>
+
+    <button onclick="closeReview()"
+            style="margin-top:10px; width:100%; padding:8px; background:none;
+            border:1px solid #202733; border-radius:8px; color:#e5e7eb;">
+      Close
+    </button>
+
+    <div id="review-list" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<script>
+function openReview(){ loadName(); fetchReviews(); document.getElementById('review-modal').style.display='flex'; }
+function closeReview(){ document.getElementById('review-modal').style.display='none'; }
+
+const KEY='aj_name_v1';
+const API='/api/reviews';
+
+function loadName(){
+  const n = localStorage.getItem(KEY);
+  const i = document.getElementById('review-name');
+  const note = document.getElementById('review-name-note');
+  if(n){ i.value=n; i.disabled=true; note.innerText="Name saved: "+n; }
+  else { i.value=""; i.disabled=false; note.innerText="You can enter name only once."; }
+}
+
+async function submitReview(){
+  let name=localStorage.getItem(KEY);
+  const i=document.getElementById('review-name');
+  if(!name){
+    if(!i.value.trim()){ alert("Type your name"); return; }
+    localStorage.setItem(KEY, i.value.trim());
+    name=i.value.trim();
+    loadName();
+  }
+
+  const text=document.getElementById('review-text').value.trim();
+  if(!text){ alert("Write review"); return; }
+
+  try{
+    await fetch(API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:name,text:text})
+    });
+  }catch(e){
+    console.error(e);
+  }
+  document.getElementById('review-text').value='';
+  fetchReviews();
+}
+
+async function fetchReviews(){
+  try{
+    const r=await fetch(API);
+    if(!r.ok) return;
+    const j=await r.json();
+    render(j.reviews||[]);
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function render(list){
+  const root=document.getElementById('review-list');
+  root.innerHTML='';
+  if(!list.length){
+    root.innerHTML='<div style="color:#9aa0a6;font-size:13px;">No reviews yet.</div>';
+    return;
+  }
+  list.forEach(r=>{
+    const box=document.createElement('div');
+    box.style.padding='10px';
+    box.style.borderRadius='8px';
+    box.style.background='rgba(255,255,255,0.02)';
+    box.style.border='1px solid rgba(255,255,255,0.03)';
+    box.style.marginBottom='8px';
+
+    const top=document.createElement('div');
+    top.style.display='flex';
+    top.style.justifyContent='space-between';
+    top.style.alignItems='center';
+
+    const left=document.createElement('div');
+    const nameEl=document.createElement('div');
+    nameEl.style.fontWeight='700';
+    nameEl.style.color='#6a5cff';
+    nameEl.innerText=r.name;
+    const timeEl=document.createElement('div');
+    timeEl.style.fontSize='12px';
+    timeEl.style.color='#9aa0a6';
+    timeEl.innerText=new Date(r.ts).toLocaleString();
+    left.appendChild(nameEl);
+    left.appendChild(timeEl);
+
+    const del=document.createElement('button');
+    del.innerText='Delete';
+    del.style.background='transparent';
+    del.style.border='1px solid rgba(255,255,255,0.06)';
+    del.style.color='#e5e7eb';
+    del.style.padding='6px 8px';
+    del.style.borderRadius='6px';
+    del.style.cursor='pointer';
+    del.addEventListener('click', function(){
+      if(!confirm('Delete this review?')) return;
+      deleteReview(r.id);
+    });
+
+    top.appendChild(left);
+    top.appendChild(del);
+
+    const body=document.createElement('div');
+    body.style.marginTop='6px';
+    body.style.color='#9aa0a6';
+    body.innerText=r.text;
+
+    box.appendChild(top);
+    box.appendChild(body);
+    root.appendChild(box);
+  });
+}
+
+async function deleteReview(id){
+  try{
+    await fetch(API+'/'+encodeURIComponent(id), { method:'DELETE' });
+    fetchReviews();
+  }catch(e){
+    console.error(e);
+  }
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    const m=document.getElementById('review-modal');
+    if(m && m.style.display==='flex') m.style.display='none';
+  }
+});
+</script>

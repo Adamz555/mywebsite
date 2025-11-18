@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="section">
+  <div class="card" style="padding:14px; max-width:920px; margin:0 auto;">
+    <h2>Leave a Review</h2>
+
+    <p style="color:darkgreen;">
+      Type your name once (saved to this device), then write your review. Captcha is required to create review.
+    </p>
+
+    <input id="rv-name" placeholder="Your name" style="padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid var(--border);">
+
+    <div style="margin-top:8px; color:darkgreen;" id="rv-captcha-box">
+      <span id="rv-q"></span>
+      <input id="rv-a" placeholder="Answer" style="padding:8px; width:120px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:8px;">
+      <button id="rv-new" class="btn">New</button>
+    </div>
+
+    <textarea id="rv-text" rows="4" placeholder="Write review..." style="margin-top:10px; padding:10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid var(--border);"></textarea>
+
+    <button id="rv-send" class="btn btn-primary" style="margin-top:10px;">Add Review</button>
+
+    <div id="rv-status" style="margin-top:8px; color:var(--muted); font-size:13px;"></div>
+
+    <hr style="margin:16px 0; border-color:var(--border);">
+
+    <h3>Public Reviews</h3>
+    <div id="rv-list" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow:auto;"></div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+
+<script>
+const STATICMAN = "https://staticman3.herokuapp.com/v3/entry/github/<GITHUB_USER>/<GITHUB_REPO>/<BRANCH>";
+const API = "https://api.github.com/repos/<GITHUB_USER>/<GITHUB_REPO>/contents/data/comments?ref=<BRANCH>";
+const NAME_KEY="rv_name_v1"; const DEL_KEY="rv_del_v1";
+
+function cap(){let a=Math.floor(Math.random()*6)+2;let b=Math.floor(Math.random()*6)+1;
+document.getElementById("rv-q").innerText=a+" + "+b+" = ?"; document.getElementById("rv-q").dataset.ans=a+b;}
+cap(); document.getElementById("rv-new").onclick=cap;
+
+function loadName(){let n=localStorage.getItem(NAME_KEY); if(n){rv-name.value=n; rv-name.disabled=true;}}
+loadName();
+
+async function loadReviews(){
+ let box=document.getElementById("rv-list"); box.innerHTML="Loading…";
+ let r=await fetch(API); if(!r.ok){box.innerHTML="Error"; return;}
+ let files=await r.json(); if(!files.length){box.innerHTML="No reviews"; return;}
+ box.innerHTML="";
+ for(let f of files){
+   let txt=await fetch(f.download_url).then(r=>r.text());
+   let o=jsyaml.load(txt);
+   let d=document.createElement("div");
+   d.style.cssText="padding:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;";
+   d.innerHTML=`<div style='color:darkred;font-weight:700;'>${o.name}</div>
+                <div style='color:var(--muted);font-size:12px;'>${o.timestamp?new Date(o.timestamp).toLocaleString():""}</div>
+                <div style='margin-top:6px;color:var(--muted);white-space:pre-wrap;'>${o.text}</div>`;
+   box.appendChild(d);
+ }
+}
+loadReviews();
+
+document.getElementById("rv-send").onclick=async()=>{
+ let nm=localStorage.getItem(NAME_KEY);
+ let name=nm||rv-name.value.trim();
+ if(!name){alert("Name");return;}
+ if(!nm){
+   if(rv-a.value.trim()!=document.getElementById("rv-q").dataset.ans){alert("Captcha wrong");return;}
+   localStorage.setItem(NAME_KEY,name);
+ }
+ let text=rv-text.value.trim(); if(!text){alert("Text");return;}
+ let body={fields:{name:name,text:text}};
+ rv-status.innerText="Publishing…";
+ let r=await fetch(STATICMAN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ if(!r.ok){rv-status.innerText="Error";return;}
+ rv-text.value=""; rv-status.innerText="Done"; setTimeout(loadReviews,1500);
+};
+</script>
+
+{% endblock %}
