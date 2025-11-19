@@ -1,6 +1,97 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- FULL-PAGE INTRO OVERLAY (added) -->
+<style>
+  /* intro overlay (keeps site colors & theme intact) */
+  #site-intro{position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(2,6,12,0.6), rgba(2,6,12,0.75)); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  #site-intro .intro-card{width:min(920px,92vw); max-width:920px; padding:36px; border-radius:16px; background:rgba(5,12,20,0.82); box-shadow:0 24px 60px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03); text-align:center; color:var(--text);}
+  #site-intro .intro-title{font-size:clamp(26px,4.6vw,44px); font-weight:800; margin:0 0 8px; letter-spacing:-0.02em;}
+  #site-intro .intro-sub{font-size:18px; color:#c92b2b; font-weight:700; margin:10px 0 14px;}
+  #site-intro .intro-power{margin-top:12px; color:rgba(255,255,255,0.92); font-weight:600;}
+  #site-intro .intro-cta{margin-top:20px; display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap;}
+  #site-intro .intro-btn{padding:10px 24px; border-radius:12px; font-weight:800; text-decoration:none; background:linear-gradient(90deg,#6a5cff,#2ad1ff); color:#041028; display:inline-block;}
+  #site-intro .intro-dots{display:flex; gap:10px; align-items:center; margin-left:6px;}
+  #site-intro .intro-dot{width:12px; height:12px; border-radius:4px; background:rgba(255,255,255,0.12); box-shadow:0 6px 14px rgba(0,0,0,0.45);}
+  #site-intro .intro-dot.active{background:linear-gradient(180deg,#6a5cff,#2ad1ff); transform:scale(1.08); box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+  /* fade out helper */
+  #site-intro.fade{opacity:0; transform:translateY(-6px) scale(0.995); transition:opacity 420ms ease, transform 420ms ease; pointer-events:none;}
+  @media (prefers-reduced-motion: reduce){ #site-intro, #site-intro *{transition:none !important; animation:none !important;} }
+</style>
+
+<div id="site-intro" role="dialog" aria-label="Intro">
+  <div class="intro-card" id="intro-card" role="document">
+    <div class="intro-title">Ajmal Adam Blockchain & Technologies</div>
+    <div class="intro-sub">Testnet Version</div>
+    <div class="intro-power">Powered by: Ajmal Adam Software Company</div>
+
+    <div class="intro-cta" aria-hidden="true">
+      <a id="intro-enter" class="intro-btn" href="javascript:void(0)">Enter site</a>
+      <div class="intro-dots" id="intro-dots" aria-hidden="true">
+        <div class="intro-dot active"></div>
+        <div class="intro-dot"></div>
+        <div class="intro-dot"></div>
+        <div class="intro-dot"></div>
+        <div class="intro-dot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  try{
+    var AUTO_MS = 5000; // 5 seconds
+    var intro = document.getElementById('site-intro');
+    var card = document.getElementById('intro-card');
+    var enter = document.getElementById('intro-enter');
+    var dots = Array.prototype.slice.call(document.querySelectorAll('#intro-dots .intro-dot'));
+    // cycle dots visually
+    var idx = 0;
+    var dotInterval = setInterval(function(){
+      dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+      idx = (idx + 1) % dots.length;
+    }, 420);
+
+    // hide function (fade then remove)
+    function hideIntro(immediate){
+      clearInterval(dotInterval);
+      if(!intro) return;
+      if(immediate){
+        try{ intro.parentNode && intro.parentNode.removeChild(intro); }catch(e){}
+        return;
+      }
+      intro.classList.add('fade');
+      setTimeout(function(){
+        try{ intro.parentNode && intro.parentNode.removeChild(intro); }catch(e){}
+      }, 460);
+    }
+
+    // auto hide after delay
+    var timer = setTimeout(function(){ hideIntro(false); }, AUTO_MS);
+
+    // enter button cancels timer and hides immediately
+    if(enter){
+      enter.addEventListener('click', function(e){
+        clearTimeout(timer);
+        hideIntro(true);
+      }, {passive:true});
+    }
+
+    // allow Escape to skip intro
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' || ev.key === 'Esc'){
+        clearTimeout(timer);
+        hideIntro(true);
+      }
+    }, {passive:true});
+
+  }catch(err){
+    console && console.log && console.log('intro overlay error', err);
+  }
+})();
+</script>
+
 <!-- Labs pill shown at top of content area -->
 <div class="container nav-pill-row" style="max-width:980px; margin:8px auto 0; padding:0 12px;">
   <div class="nav-links-row">
