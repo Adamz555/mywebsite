@@ -1,51 +1,72 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- Home Button (Sky Blue, top-right) -->
+<a href="/" style="
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 13px;
+  color: #4bb3ff;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #4bb3ff;
+  background: rgba(75,179,255,0.10);
+">
+  Home
+</a>
+
 <section class="section">
-  <h1 style="font-size:22px; text-align:center; line-height:1.3; margin-bottom:6px;">
-    About<br>Ajmal Adam
+  <h1 style="font-size:28px; text-align:center; line-height:1.3; margin-bottom:6px;">
+    About<br>Ajmal Adamz
   </h1>
 
-  <p style="text-align:center; font-size:13px; color:#9aa0a6; margin-top:-8px;">
+  <!-- single word under name -->
+  <p style="text-align:center; font-size:14px; color:#9aa0a6; margin-top:-8px;">
     [Developer]
   </p>
 
-  <div style="text-align:center; margin: 12px 0 18px 0;">
+  <!-- Profile photo -->
+  <div style="text-align:center; margin: 16px 0 24px 0;">
     <img src="{{ url_for('static', filename='images/profile.png') }}"
-         alt="Ajmal Adam"
-         style="width:140px; height:140px; border-radius:50%; object-fit:cover; border:3px solid #4b9fff;">
+         alt="Ajmal Adamz"
+         style="width:180px; height:180px; border-radius:50%; object-fit:cover; border:3px solid #4b9fff;">
   </div>
 
-  <p style="font-size:14px; line-height:1.5;">
-    Ajmal Adam is a Software Engineer, Ethical Hacker, Blockchain Researcher and Film Maker from Kerala - india. He specialises in Ai Smart Contract Security, vulnerability analysis, and building tools that make on-chain systems safer and more auditable.
+  <p>
+    Ajmal Adamz is a Software Engineer, Ethical Hacker, Ai Blockchain Researcher+Ai Smart Contract Security Enthusiast and Film Maker from Kerala, India. He focuses on deep Research, auditing methodologies, and Decentralized Technology.
   </p>
 
-  <p style="font-size:14px; line-height:1.5;">
-    His approach combines automated tooling, targeted fuzzing, and manual review to produce practical, verifiable findings and remediation guidance. He contributes to open-source tooling and shares reproducible research to help developers and auditors improve security standards.
+  <p>
+    He operates from Karuvarakundu Malappuram and Kochi, contributing to blockchain research and tooling.
   </p>
 
-  <p style="font-size:14px; line-height:1.5;">
-    Operating between Karuvarakundu (Malappuram) and Kochi, Ajmal focuses on applied research at the intersection of blockchain, Ai-driven auditing, and space-grade communication systems.
+  <p>
+    He mainly researches using ecosystems and tools such as <b>
+ • Solidity • Python • C++ • Remix IDE • Foundry 
+• Slither • Manticore • Mythril • Echidna </b> and more.
   </p>
 
-  <p style="font-size:14px; line-height:1.5;">
-    Core technologies and tools: <strong> Solidity • Python • C++ • Java Script • Remix IDE • Foundry • Slither • Manticore • Mythril • Echidna</strong>. and more
+  <p>
+    His work is centered on building open knowledge in blockchain and making complex research accessible for the next
+    generation of developers and innovators.
   </p>
 
-  <div class="grid" style="margin-top:20px">
+  <div class="grid" style="margin-top:25px">
     <article class="card">
-      <h3 style="font-size:16px">Research Areas</h3>
-      <p style="font-size:13px">Smart contract security • Static analysis • Fuzzing • Symbolic execution • Audit automation • Space-tech integration</p>
+      <h3>Research Areas</h3>
+      <p>Smart Contract Security • Static Analysis • Fuzzing • Audit Automation • Space-Tech • Blockchain</p>
     </article>
 
     <article class="card">
-      <h3 style="font-size:16px">Tools & Ecosystems</h3>
-      <p style="font-size:13px">Foundry • Slither • Mythril • Echidna • Manticore • Remix IDE • Pharos Network</p>
+      <h3>Tools & Ecosystems</h3>
+      <p> • Solidity • Python • C++ • Java Script • Foundry • Slither • Echidna • Remix IDE • Pharos Network • Etherium Foundation </p>
     </article>
 
     <article class="card">
-      <h3 style="font-size:16px">Vision</h3>
-      <p style="font-size:13px">To build an open, decentralised research ecosystem that connects security engineering, Ai and space innovation — making advanced research practical and reusable.</p>
+      <h3>Vision</h3>
+      <p>To build a decentralized research ecosystem connecting blockchain and space innovators.</p>
     </article>
   </div>
 </section>

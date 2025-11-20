@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <h1 style="font-size:20px; margin:0 0 10px;">Decentralized Finance (DeFi)</h1>
+
+    <h3 style="font-size:15px; margin-top:8px;">Introduction</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      DeFi composes smart contracts, tokens, and oracles into permissionless financial primitives: lending, AMMs, derivatives, and protocol-level governance.
+      DeFi is often described as the <strong>Next Evolution of World Financial System</strong> because it enables composable financial infrastructure without central intermediaries.
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Core building blocks</h3>
+    <ul style="font-size:13px; color:var(--muted); line-height:1.6;">
+      <li>Tokens (ERC20 / ERC721 / ERC1155) — representation of assets.</li>
+      <li>Oracles — reliable price feeds and event attestations.</li>
+      <li>AMMs — automated market makers for liquidity and swaps.</li>
+      <li>Lending protocols — overcollateralized loans, interest markets.</li>
+      <li>Governance — token-weighted proposals and timelocks.</li>
+    </ul>
+
+    <h3 style="font-size:15px; margin-top:8px;">Risks & Mitigations</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      Smart contract bugs, oracle manipulation, protocol-level accounting errors, and economic attacks (flash-loans) are common. Mitigations: multi-oracle sources, on-chain circuit breakers, and strong invariant testing.
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Practical PoC highlights</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      The research PoCs on the Research Files page illustrate vault primitives and settlement flows. For production DeFi, add price-oracle checks, liquidation mechanisms, and insurance/backstop capital.
+    </p>
+
+    <p style="font-size:12px; color:var(--muted); margin-top:12px;">
+      Conclusion: DeFi's modularity enables rapid innovation — combine engineering rigor with economic analysis to build resilient financial primitives.
+    </p>
+  </div>
+</section>
+{% endblock %}

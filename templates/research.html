@@ -7,12 +7,12 @@
         <a href="{{ url_for('research') }}" style="text-decoration:none;">
           <h2 style="font-size:20px; margin:0; display:inline-block;">
             <span style="background: linear-gradient(90deg,#6a5cff,#2ad1ff); -webkit-background-clip:text; color:transparent; font-weight:800;">
-              Ajmal Adam Research Files (Basics only)
+              Ajmal Adamz Research Files (Basics only)
             </span>
           </h2>
         </a>
         <p style="margin:6px 0 0; font-size:13px; color:var(--muted);">
-          Concise PoC descriptions and practical minimal proofs-of-concept. Select a topic below to view detailed material.
+          Concise, colourful PoC descriptions and practical minimal proofs-of-concept. Select a topic below to view detailed material.
         </p>
       </div>
 
@@ -33,7 +33,7 @@
       <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
         <button onclick="openTopic('topic-smart')" class="subnav mini-btn" style="background:linear-gradient(90deg,#6a5cff,#2ad1ff); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">Smart Contract</button>
         <button onclick="openTopic('topic-defi')" class="subnav mini-btn" style="background:linear-gradient(90deg,#ffb86b,#ff8a5b); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">DeFi</button>
-        <button onclick="openTopic('topic-bvm')" class="subnav mini-btn" style="background:linear-gradient(90deg,#2ad1ff,#6a5cff); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">Blockchain Virtual Machine &amp; Concepts</button>
+        <button onclick="openTopic('topic-bvm')" class="subnav mini-btn" style="background:linear-gradient(90deg,#2ad1ff,#6a5cff); color:#041028; padding:10px 14px; border-radius:10px; font-weight:700;">Blockchain Virtual Machine & Concepts</button>
       </div>
     </div>
   </div>
@@ -47,13 +47,13 @@
         <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
           <button onclick="openTopic('topic-space')" class="subnav mini-btn" style="background:linear-gradient(90deg,#2ad1ff,#6a5cff); color:#041028; padding:14px; border-radius:12px; font-weight:800;">Blockchain For Space Research</button>
           <button onclick="openTopic('topic-defi')" class="subnav mini-btn" style="background:linear-gradient(90deg,#ffb86b,#ff8a5b); color:#041028; padding:14px; border-radius:12px; font-weight:800;">Decentralized Finance</button>
-          <button onclick="openTopic('topic-election')" class="subnav mini-btn" style="background:linear-gradient(90deg,#6a5cff,#2ad1ff); color:#041028; padding:14px; border-radius:12px; font-weight:800;">Decentralized Election Mechanism</button>
+          <button onclick="openTopic('topic-smart')" class="subnav mini-btn" style="background:linear-gradient(90deg,#6a5cff,#2ad1ff); color:#041028; padding:14px; border-radius:12px; font-weight:800;">Decentralized Election Mechanism</button>
         </div>
 
         <div style="margin-top:16px;">
           <h3 style="color:#6a5cff; margin:0 0 8px;">Quick Index</h3>
           <ul style="color:var(--muted); font-size:13px; line-height:1.6;">
-            <li><strong>Smart Contract:</strong> Core practices, ownership, safe patterns and minimal examples.</li>
+            <li><strong>Smart Contract:</strong> Decentralized voting (vote-hash anchoring), privacy-preserving on-chain record, minimal audit guidance.</li>
             <li><strong>DeFi:</strong> Simple lending pool & share model — deposit/withdraw maths and security notes.</li>
             <li><strong>Blockchain VM & Concepts:</strong> Telemetry anchoring (IPFS + on-chain CID anchoring), verification and provenance notes for telemetry.</li>
           </ul>
@@ -61,147 +61,78 @@
       </div>
     </div>
 
-    <!-- SMART CONTRACT: separate content -->
     <div id="topic-smart" style="display:none; margin-top:12px;">
-      <div class="card" style="padding:14px; border-left:4px solid #6a5cff;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:#6a5cff; margin:0 0 8px;">Smart Contracts — Basics & Best Practices <small style="color:var(--muted); font-size:12px;">(Overview & PoC)</small></h3>
-          <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
-            <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
-          </div>
-        </div>
-
-        <p style="font-size:13px; color:var(--muted); line-height:1.6;">
-          Smart contracts are deterministic on-chain programs that manage state and enforce rules automatically. Focus on gas efficiency, strong access control, input validation, and safe interaction patterns.
-        </p>
-
-        <h4 style="color:#2ad1ff; margin-top:8px;">Core concepts</h4>
-        <ul style="font-size:13px; color:var(--muted);">
-          <li>Minimize storage writes; prefer memory for temporary data.</li>
-          <li>Explicit access control (owner/roles); protect admin functions.</li>
-          <li>Prevent reentrancy: checks-effects-interactions; use ReentrancyGuard.</li>
-          <li>Validate inputs: avoid zero values, check array bounds, validate addresses.</li>
-          <li>Emit events for important state changes for off-chain indexing and audits.</li>
-        </ul>
-
-        <h4 style="color:#2ad1ff; margin-top:8px;">Minimal Solidity PoC (Ownable + SafeDeposit)</h4>
-        <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(106,92,255,0.06);">
-          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; padding:14px; border-radius:8px; background: linear-gradient(90deg,#001417,#002b1f);">
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SimpleOwnable {
-    address public owner;
-    event OwnershipTransferred(address indexed oldOwner, address indexed newOwner);
-    constructor() { owner = msg.sender; }
-    modifier onlyOwner() { require(msg.sender == owner, "owner only"); _; }
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "zero");
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-    }
-}
-
-contract SafeDeposit is SimpleOwnable {
-    mapping(address => uint) public balances;
-    event Deposited(address indexed who, uint amount);
-    function deposit() external payable {
-        require(msg.value > 0, "zero");
-        balances[msg.sender] += msg.value;
-        emit Deposited(msg.sender, msg.value);
-    }
-    function withdraw(uint amount) external {
-        require(balances[msg.sender] >= amount, "insufficient");
-        balances[msg.sender] -= amount;
-        (bool ok, ) = msg.sender.call{value: amount}("");
-        require(ok, "transfer failed");
-    }
-}
-          </pre>
-          <div style="font-size:13px; color:var(--muted); margin-top:8px;">
-            <strong style="color:#6a5cff;">Note:</strong> Educational PoC. For production use audited libraries (OpenZeppelin), upgradeability patterns, and extensive tests.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DECENTRALIZED ELECTION: own id with election-specific content -->
-    <div id="topic-election" style="display:none; margin-top:12px;">
       <div class="card" style="padding:14px; border-left:4px solid #6a5cff;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#6a5cff; margin:0 0 8px;">Decentralized Election Voting — Vote Hash Anchoring <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
 
         <p style="font-size:13px; color:var(--muted); line-height:1.6;">
-          Decentralized voting mechanisms aim to preserve voter privacy while providing verifiable, tamper-evident records. A common pattern: store salted vote hashes on-chain and reveal salts off-chain for verification.
+          Summary: A minimal on-chain flow that stores salted vote hashes only, avoiding plaintext votes on-chain and enabling later verification.
         </p>
 
         <h4 style="color:#2ad1ff; margin-top:8px;">Design summary</h4>
         <ul style="font-size:13px; color:var(--muted);">
-          <li>Register eligible voter addresses (on-chain) or use cryptographic credentials off-chain.</li>
-          <li>Voter computes salted vote-hash off-chain and submits only the hash on-chain.</li>
-          <li>Contract records hash and marks address as voted; no plaintext choices stored on-chain.</li>
-          <li>After poll close, organizer reveals salts/payloads off-chain; auditors verify hashes match stored entries.</li>
+          <li>Admin registers eligible voter addresses.</li>
+          <li>Voter computes a salted vote hash off-chain and submits only the hash.</li>
+          <li>Contract stores the hash and marks the address as voted.</li>
+          <li>Organizer reveals payloads later for off-chain verification against stored hashes.</li>
         </ul>
 
-        <h4 style="color:#2ad1ff; margin-top:8px;">Security & privacy notes</h4>
+        <h4 style="color:#2ad1ff; margin-top:8px;">Security notes</h4>
         <ul style="font-size:13px; color:var(--muted);">
-          <li>Keep salts private until reveal; leaking salts breaks privacy.</li>
-          <li>Consider commit-reveal delays and anti-front-running measures.</li>
-          <li>For stronger privacy, use zk-proofs, blind signatures or mixnets.</li>
-          <li>Protect admin actions with multisig/timelocks to avoid unauthorized changes.</li>
+          <li>Protect admin functions with multisig or timelock in production.</li>
+          <li>Keep salts off-chain and stored securely; avoid on-chain plaintext.</li>
         </ul>
 
         <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(106,92,255,0.06);">
-          <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity PoC (Vote-hash anchor)</div>
-          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; padding:14px; border-radius:8px; background: linear-gradient(90deg,#220018,#3a0029);">
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract VoteHashAnchor {
-    address public admin;
-    mapping(address => bool) public registered;
-    mapping(bytes32 => bool) public voteSeen;
-    mapping(address => bool) public hasVoted;
-    bool public closed;
-
-    constructor() { admin = msg.sender; }
-
-    modifier onlyAdmin { require(msg.sender == admin, "admin only"); _; }
-    modifier open { require(!closed, "poll closed"); _; }
-
-    function registerVoter(address v) external onlyAdmin { registered[v] = true; }
-    function closePoll() external onlyAdmin { closed = true; }
-
-    // submit hash of (pollId || voterSalt || choice)
-    function submitVote(bytes32 h) external open {
-        require(registered[msg.sender], "not registered");
-        require(!hasVoted[msg.sender], "already voted");
-        require(!voteSeen[h], "duplicate vote");
-        voteSeen[h] = true;
-        hasVoted[msg.sender] = true;
-    }
-}
+          <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+<span style="color:#ffd27a">// SPDX-License-Identifier: MIT</span><br>
+<span style="color:#6a5cff">pragma solidity ^0.8.0;</span><br>
+<br>
+<span style="color:#7fffd4">contract VoteHashAnchor {</span><br>
+<span style="color:#ff9aa2">    address public admin;</span><br>
+<span style="color:#ff9aa2">    mapping(address => bool) public registered;</span><br>
+<span style="color:#ff9aa2">    mapping(bytes32 => bool) public voteSeen;</span><br>
+<span style="color:#ff9aa2">    mapping(address => bool) public hasVoted;</span><br>
+<span style="color:#7fffd4">    bool public closed;</span><br>
+<br>
+<span style="color:#c1f0ff">    constructor() { admin = msg.sender; }</span><br>
+<br>
+<span style="color:#ffd6a5">    modifier onlyAdmin { require(msg.sender == admin, "admin only"); _; }</span><br>
+<span style="color:#ffd6a5">    modifier open { require(!closed, "poll closed"); _; }</span><br>
+<br>
+<span style="color:#b0ffb3">    function registerVoter(address v) external onlyAdmin { registered[v] = true; }</span><br>
+<span style="color:#b0ffb3">    function closePoll() external onlyAdmin { closed = true; }</span><br>
+<br>
+<span style="color:#b3d9ff">    // submit hash of (pollId || voterSalt || choice)</span><br>
+<span style="color:#b3d9ff">    function submitVote(bytes32 h) external open {</span><br>
+<span style="color:#ffd2ea">        require(registered[msg.sender], "not registered");</span><br>
+<span style="color:#ffd2ea">        require(!hasVoted[msg.sender], "already voted");</span><br>
+<span style="color:#ffd2ea">        require(!voteSeen[h], "duplicate vote");</span><br>
+<span style="color:#b3d9ff">        voteSeen[h] = true;</span><br>
+<span style="color:#b3d9ff">        hasVoted[msg.sender] = true;</span><br>
+<span style="color:#b3d9ff">    }</span><br>
+<span style="color:#7fffd4">}</span>
           </pre>
           <div style="font-size:13px; color:var(--muted); margin-top:8px;">
-            <strong style="color:#6a5cff;">Note:</strong> This is a simple PoC. Real election systems require thorough threat modelling, privacy-preserving cryptography, and independent audits.
+            <strong style="color:#6a5cff;">Note:</strong> For production use consider privacy-enhancing techniques (zk-proofs or blind signatures); this is a simple PoC.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- DeFi section unchanged but colorful code text -->
     <div id="topic-defi" style="display:none; margin-top:12px;">
       <div class="card" style="padding:14px; border-left:4px solid #ffb86b;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:#ffb86b; margin:0 0 8px;">Decentralized Finance — Simple Lending Pool &amp; Share Model <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
+          <h3 style="color:#ffb86b; margin:0 0 8px;">Decentralized Finance — Simple Lending Pool & Share Model <small style="color:var(--muted); font-size:12px;">(Proof of Concept)</small></h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
@@ -219,43 +150,44 @@ contract VoteHashAnchor {
 
         <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(255,184,107,0.06);">
           <div style="font-weight:800; color:#6a5cff; margin-bottom:8px;">Minimal Solidity PoC (Proof of Concept)</div>
-          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; padding:14px; border-radius:8px; background: linear-gradient(90deg,#2b1000,#3e1a00);">
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-interface IERC20 { function transferFrom(address from, address to, uint amount) external returns(bool); function transfer(address to, uint amount) external returns(bool); function balanceOf(address owner) external view returns(uint); }
-
-contract SimpleLendingPool {
-    IERC20 public immutable token;
-    uint public totalShares;
-    uint public totalAssets;
-    mapping(address => uint) public shares;
-
-    constructor(address _token) { token = IERC20(_token); }
-
-    function deposit(uint amount) external {
-        require(amount>0, "zero");
-        uint minted;
-        if (totalShares == 0) {
-            minted = amount;
-        } else {
-            minted = amount * totalShares / totalAssets;
-        }
-        token.transferFrom(msg.sender, address(this), amount);
-        totalAssets += amount;
-        totalShares += minted;
-        shares[msg.sender] += minted;
-    }
-
-    function withdraw(uint shareAmount) external {
-        require(shareAmount>0 && shares[msg.sender]>=shareAmount, "invalid");
-        uint value = shareAmount * totalAssets / totalShares;
-        shares[msg.sender] -= shareAmount;
-        totalShares -= shareAmount;
-        totalAssets -= value;
-        token.transfer(msg.sender, value);
-    }
-}
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+<span style="color:#ffd27a">// SPDX-License-Identifier: MIT</span><br>
+<span style="color:#6a5cff">pragma solidity ^0.8.0;</span><br>
+<br>
+<span style="color:#7fffd4">interface IERC20 { function transferFrom(address from, address to, uint amount) external returns(bool); function transfer(address to, uint amount) external returns(bool); function balanceOf(address owner) external view returns(uint); }</span><br>
+<br>
+<span style="color:#b0ffb3">contract SimpleLendingPool {</span><br>
+<span style="color:#ff9aa2">    IERC20 public immutable token;</span><br>
+<span style="color:#ff9aa2">    uint public totalShares;</span><br>
+<span style="color:#ff9aa2">    uint public totalAssets;</span><br>
+<br>
+<span style="color:#b0ffb3">    mapping(address => uint) public shares;</span><br>
+<br>
+<span style="color:#c1f0ff">    constructor(address _token) { token = IERC20(_token); }</span><br>
+<br>
+<span style="color:#ffd6a5">    function deposit(uint amount) external {</span><br>
+<span style="color:#ffd2ea">        require(amount>0, "zero");</span><br>
+<span style="color:#ffd2ea">        uint minted;</span><br>
+<span style="color:#b3d9ff">        if (totalShares == 0) {</span><br>
+<span style="color:#b3d9ff">            minted = amount;</span><br>
+<span style="color:#b3d9ff">        } else {</span><br>
+<span style="color:#b3d9ff">            minted = amount * totalShares / totalAssets;</span><br>
+<span style="color:#b3d9ff">        }</span><br>
+<span style="color:#ffd2ea">        token.transferFrom(msg.sender, address(this), amount);</span><br>
+<span style="color:#ffd2ea">        totalAssets += amount;</span><br>
+<span style="color:#ffd2ea">        totalShares += minted;</span><br>
+<span style="color:#ffd2ea">        shares[msg.sender] += minted;</span><br>
+<span style="color:#ffd6a5">    }</span><br>
+<br>
+<span style="color:#ffd6a5">    function withdraw(uint shareAmount) external {</span><br>
+<span style="color:#ffd2ea">        require(shareAmount>0 && shares[msg.sender]>=shareAmount, "invalid");</span><br>
+<span style="color:#b3d9ff">        uint value = shareAmount * totalAssets / totalShares;</span><br>
+<span style="color:#b3d9ff">        shares[msg.sender] -= shareAmount;</span><br>
+<span style="color:#b3d9ff">        totalShares -= shareAmount;</span><br>
+<span style="color:#b3d9ff">        totalAssets -= value;</span><br>
+<span style="color:#ffd2ea">        token.transfer(msg.sender, value);</span><br>
+<span style="color:#ffd6a5">    }</span><br>
+<span style="color:#b0ffb3">}</span>
           </pre>
           <div style="font-size:13px; color:var(--muted); margin-top:8px;">
             <strong style="color:#ffb86b;">Example:</strong> If pool = 100 tokens and 100 shares → deposit 10 tokens → mint 10 shares. If later pool = 150 tokens, 10 shares = 15 tokens.
@@ -264,13 +196,12 @@ contract SimpleLendingPool {
       </div>
     </div>
 
-    <!-- BVM / Telemetry Anchoring unchanged content, colorful code text -->
     <div id="topic-bvm" style="display:none; margin-top:12px;">
       <div class="card" style="padding:14px; border-left:4px solid #2ad1ff;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain Virtual Machine &amp; Concepts — Telemetry Anchoring (IPFS + On-chain CID)</h3>
+          <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain Virtual Machine & Concepts — Telemetry Anchoring (IPFS + On-chain CID)</h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
@@ -288,25 +219,26 @@ contract SimpleLendingPool {
 
         <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(42,209,255,0.06);">
           <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Solidity Anchor PoC (Proof of Concept)</div>
-          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; padding:14px; border-radius:8px; background: linear-gradient(90deg,#001e25,#00333f);">
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract TelemetryAnchor {
-    struct Entry { string cid; uint256 ts; address submitter; }
-    Entry[] public entries;
-    event Anchored(uint indexed id, string cid, uint256 ts, address indexed submitter);
-
-    function anchorCID(string calldata cid) external {
-        entries.push( Entry({ cid: cid, ts: block.timestamp, submitter: msg.sender }) );
-        emit Anchored(entries.length-1, cid, block.timestamp, msg.sender);
-    }
-
-    function getEntry(uint id) external view returns(string memory, uint256, address) {
-        Entry storage e = entries[id];
-        return (e.cid, e.ts, e.submitter);
-    }
-}
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+<span style="color:#ffd27a">// SPDX-License-Identifier: MIT</span><br>
+<span style="color:#6a5cff">pragma solidity ^0.8.0;</span><br>
+<br>
+<span style="color:#7fffd4">contract TelemetryAnchor {</span><br>
+<span style="color:#ff9aa2">    struct Entry { string cid; uint256 ts; address submitter; }</span><br>
+<span style="color:#ff9aa2">    Entry[] public entries;</span><br>
+<br>
+<span style="color:#b3d9ff">    event Anchored(uint indexed id, string cid, uint256 ts, address indexed submitter);</span><br>
+<br>
+<span style="color:#b0ffb3">    function anchorCID(string calldata cid) external {</span><br>
+<span style="color:#ffd2ea">        entries.push( Entry({ cid: cid, ts: block.timestamp, submitter: msg.sender }) );</span><br>
+<span style="color:#ffd2ea">        emit Anchored(entries.length-1, cid, block.timestamp, msg.sender);</span><br>
+<span style="color:#b0ffb3">    }</span><br>
+<br>
+<span style="color:#b0ffb3">    function getEntry(uint id) external view returns(string memory, uint256, address) {</span><br>
+<span style="color:#ffd2ea">        Entry storage e = entries[id];</span><br>
+<span style="color:#ffd2ea">        return (e.cid, e.ts, e.submitter);</span><br>
+<span style="color:#b0ffb3">    }</span><br>
+<span style="color:#7fffd4">}</span>
           </pre>
           <div style="font-size:13px; color:var(--muted); margin-top:8px;">
             <strong style="color:#2ad1ff;">Notes:</strong> Combine IPFS CIDs with off-chain signed attestations and consider multi-anchor strategies for stronger provenance guarantees.
@@ -315,13 +247,12 @@ contract TelemetryAnchor {
       </div>
     </div>
 
-    <!-- Space research unchanged, colorful code text for snippet -->
     <div id="topic-space" style="display:none; margin-top:12px;">
       <div class="card" style="padding:14px; border-left:4px solid #2ad1ff;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:#2ad1ff; margin:0 0 8px;">Blockchain For Space Research</h3>
           <div>
-            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Home</a>
+            <a href="{{ url_for('index') }}" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px; margin-right:8px;">Ajmal</a>
             <button onclick="openTopic('research-main')" class="subnav mini-btn" style="padding:8px 10px; border-radius:8px;">Previous</button>
           </div>
         </div>
@@ -339,14 +270,14 @@ contract TelemetryAnchor {
 
         <div style="margin-top:12px; border-radius:10px; padding:12px; background:#041028; color:#e6eef8; border:1px solid rgba(42,209,255,0.06);">
           <div style="font-weight:800; color:#ffd27a; margin-bottom:8px;">Minimal Integration Snippet (illustrative)</div>
-          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45; padding:14px; border-radius:8px; background: linear-gradient(90deg,#1a0033,#2b0050);">
-// pseudo-code (off-chain uploader)
-// 1) sign snapshot, 2) upload to IPFS, 3) submit CID to TelemetryAnchor
-// NOTE: this is illustrative; real integrations need secure key storage and relay nodes.
-
-const signed = signSnapshot(privateKey, snapshot);
-const cid = await ipfs.add(snapshot);
-await telemetryAnchorContract.anchorCID(cid);
+          <pre style="white-space:pre-wrap; font-size:13px; line-height:1.45;">
+<span style="color:#6a5cff">// pseudo-code (off-chain uploader)</span><br>
+<span style="color:#7fffd4">// 1) sign snapshot, 2) upload to IPFS, 3) submit CID to TelemetryAnchor</span><br>
+<span style="color:#ffd27a">// NOTE: this is illustrative; real integrations need secure key storage and relay nodes.</span><br>
+<br>
+<span style="color:#b3d9ff">const signed = signSnapshot(privateKey, snapshot);</span><br>
+<span style="color:#b3d9ff">const cid = await ipfs.add(snapshot);</span><br>
+<span style="color:#b3d9ff">await telemetryAnchorContract.anchorCID(cid);</span>
           </pre>
           <div style="font-size:13px; color:var(--muted); margin-top:8px;">
             <strong style="color:#2ad1ff;">Note:</strong> Space-grade deployments require careful design for intermittent connectivity, bandwidth limits, and secure key management.
@@ -369,7 +300,7 @@ await telemetryAnchorContract.anchorCID(cid);
 
 <script>
   function hideAllTopics(){
-    var ids = ['topic-smart','topic-defi','topic-bvm','topic-space','research-main','topic-election'];
+    var ids = ['topic-smart','topic-defi','topic-bvm','topic-space','research-main'];
     ids.forEach(function(i){ var e = document.getElementById(i); if(e) e.style.display='none'; });
   }
   function openTopic(id){
@@ -386,23 +317,6 @@ await telemetryAnchorContract.anchorCID(cid);
     }, 120);
   }
   (function(){ openTopic('research-main'); })();
-
-  // minimal colorizer: every 3 lines use next color (keeps script small)
-  function colorizePreLines(){
-    var palette = ['#7fffd4','#ffd27a','#ff9ae6','#b3f0ff','#ffd8a5','#d6b3ff'];
-    document.querySelectorAll('pre').forEach(function(pre){
-      var txt = pre.innerText.replace(/\r/g,'');
-      var lines = txt.split('\n');
-      var out = lines.map(function(ln, idx){
-        var color = palette[Math.floor(idx/3) % palette.length];
-        return '<span style="color:'+color+';display:block;white-space:pre-wrap;">'+
-               ln.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+
-               '</span>';
-      }).join('');
-      pre.innerHTML = out;
-    });
-  }
-  window.addEventListener('DOMContentLoaded', colorizePreLines);
 </script>
 
 {% endblock %}

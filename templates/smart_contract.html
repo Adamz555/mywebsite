@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <h1 style="font-size:20px; margin:0 0 10px;">Smart Contract — Practical Guide</h1>
+
+    <h3 style="font-size:15px; margin-top:8px;">Overview</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      Smart contracts are deterministic programs deployed on-chain that control assets and enforce logic. They execute on the blockchain VM and interact via transactions and events.
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Security Principles</h3>
+    <ul style="font-size:13px; color:var(--muted); line-height:1.6;">
+      <li>Minimise state mutability; keep functions simple and well-scoped.</li>
+      <li>Use established libraries (OpenZeppelin) for token and access control patterns.</li>
+      <li>Design for fail-safe: circuit breakers, rate limits, and escape hatches.</li>
+      <li>Audit and fuzz: Slither, Echidna, Manticore, Mythril in an early pipeline.</li>
+    </ul>
+
+    <h3 style="font-size:15px; margin-top:8px;">PoC patterns</h3>
+    <p style="font-size:13px; color:var(--muted);">
+      Example PoC: secure owner-only upgrade path, explicit initialisation, and reentrancy guard. (For brevity, code snippets already appear in Research Files PoCs.)
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Deployment & Maintenance</h3>
+    <p style="font-size:13px; color:var(--muted);">
+      Use testnets, continuous integration with unit and fuzz tests, and staged rollouts (canary / small-capital first). Monitor events and unusual activity after deployment.
+    </p>
+
+    <p style="font-size:12px; color:var(--muted); margin-top:12px;">
+      Conclusion: Build minimal attack surface, apply layered automated checks, and require human review for high-value contracts.
+    </p>
+  </div>
+</section>
+{% endblock %}

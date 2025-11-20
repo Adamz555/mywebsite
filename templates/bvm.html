@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="card">
+    <h1 style="font-size:20px; margin:0 0 10px;">Blockchain VM, Gas Model & Related Concepts</h1>
+
+    <h3 style="font-size:15px; margin-top:8px;">Virtual Machine (VM) internals</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      The blockchain VM (e.g., EVM, WASM-based VMs) executes bytecode deterministically. Key aspects: instruction set, gas costing, stack/stack-framed execution, and state transition functions.
+      Developers should understand gas refunds, storage vs memory costs, and how opcodes map to high-level constructs.
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Gas model and cost considerations</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      Gas provides a resource metering mechanism that prevents infinite loops and assigns economic cost to computation and storage. Optimise for low storage writes and predictable loops.
+    </p>
+
+    <h3 style="font-size:15px; margin-top:8px;">Additional blockchain concepts</h3>
+    <ul style="font-size:13px; color:var(--muted); line-height:1.6;">
+      <li><strong>State rent</strong> — models where long-lived storage requires periodic fees.</li>
+      <li><strong>Sharding</strong> — parallelising chain state to increase throughput.</li>
+      <li><strong>Layer 2</strong> — rollups and optimistic / zk techniques for scaling.</li>
+      <li><strong>Cross-chain messaging</strong> — secure bridge patterns and relayers.</li>
+      <li><strong>Post-quantum readiness</strong> — migrating oracles/keys to PQ schemes where needed.</li>
+    </ul>
+
+    <h3 style="font-size:15px; margin-top:8px;">Practical notes</h3>
+    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+      For auditors: focus on gas-exhaustion attack surfaces, reentrancy across external calls, and assumptions about block/timestamp. For designers: plan upgradeability and strong testing across VM edge-cases.
+    </p>
+
+    <p style="font-size:12px; color:var(--muted); margin-top:12px;">
+      Conclusion: Understanding VM semantics and higher-level protocol trade-offs is crucial when designing secure, efficient smart contracts and protocols.
+    </p>
+  </div>
+</section>
+{% endblock %}
